@@ -924,13 +924,13 @@
 							    	uicontrol = field.uicontrol || "textbox";
 							        break;
 							    case "datetime":
-							    	console.log($element.val());
+							    	
 							    	uicontrol = field.uicontrol || "datetimepicker";
 							    	break;
 							    case "ref":
 							    	//load entity
 							    	var reflink = _.result(model_schema, field.field) || {};
-							    	
+							    	field.context = this.view;
 							    	field.textField = reflink["refTextField"] || null;
 							    	field.valueField = reflink["refValueField"] || null;
 							    	field.dataSource = reflink["$ref"];
@@ -989,6 +989,7 @@
 								var reflink = _.result(modelSchema, field.field) || {}; 
 								uicontrol = field.uicontrol ||"gonrinref";
 								if(uicontrol === "gonrinref"){
+									field.context = this.view;
 									field.textField = reflink["refTextField"] || null;
 							    	field.valueField = reflink["refValueField"] || null;
 							    	field.dataSource = reflink["$ref"];
@@ -1008,7 +1009,6 @@
 							default:
 								
 						}
-						
 						if(uicontrol !== null){
 							if ($.fn[uicontrol] === undefined) {
 					        	console.log("$ is not support " + uicontrol);
