@@ -1186,6 +1186,7 @@
 		constructor: function(options) {
 			//var self = this;
 			_.extend(this, _.pick(options||{}, viewProps));
+			
 			_super(this, 'constructor', arguments);
 			
     		this.initModel();
@@ -1196,7 +1197,7 @@
 				this.$el.html(this.template);
 				//this.applyBindings();
 			}
-    		this.initProgressBar();
+			this.initProgressBar();
     		this.initToolbar();
 		},
 		// Bindings list accessor:
@@ -1248,13 +1249,6 @@
         		
         		//fields_from_schema.push(field);
         	});
-        	
-        	//this.fields = _.extend(fields_from_schema , this.fields || []);
-        	
-        	//console.log(this.fields );
-        	
-        	//this.fields = this.fields || fields_from_schema;
-        	
         	
         	var key = this.fields.length;
         	while (key--) {
@@ -1310,16 +1304,20 @@
 			this.tools = this.tools || [];
 			this.toolbar = $('<div/>').addClass("toolbar");
 			
+			function toolIsVisible(tool) {
+	            var visible = "visible";
+	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && tool[visible] === true);
+	        };
+			
 			_.each(this.tools, function(tool, index) {
-				if(tool.type === "group"){
-					//<div role="group" class="toolbar btn-group"><button btn-name="back" class="btn btn-default btn-sm" type="button">Quay lại</button><button btn-name="save" class="btn btn-success btn-sm" type="button">Lưu</button><button btn-name="delete" class="btn btn-danger btn-sm" type="button">Xoá</button></div>
+				if((tool.type === "group") && toolIsVisible(tool)){
 					var $group = $("<div/>").addClass("btn-group").appendTo(self.toolbar);
 					if(tool.groupClass){
 						$group.addClass(tool.groupClass);
 					}
 					if(tool.buttons){
 						_.each(tool.buttons, function(button, _i) {
-							if(button.type === "button"){
+							if((button.type === "button") && toolIsVisible(button)){
 								var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(button.label || button.name);
 								$tool.addClass(button.buttonClass || "btn-default");
 								$group.append($tool);
@@ -1330,8 +1328,7 @@
 						});
 					}
 				}
-				if(tool.type === "button"){
-					//<button btn-name="save" class="btn btn-success btn-sm" type="button">Lưu</button>
+				if((tool.type === "button")&& toolIsVisible(tool)){
 					var $tool = $("<button/>").attr({"type":"button", "btn-name":tool.name}).addClass("btn").html(tool.label || tool.name);
 					$tool.addClass(tool.buttonClass || "btn-default");
 					self.toolbar.append($tool);
@@ -1340,20 +1337,7 @@
 					}
 				}
 			});
-			
-			
-			
-			/*this.toolbar = $('<div/>').addClass("toolbar btn-group").attr('role','group');
-			this.toolbar.cid = _.uniqueId('toolbar');
-
-			this.toolbar.addButton = function($btn, callback){
-				self.toolbar.append($btn);
-				$btn.bind("click", callback);
-			};*/
-			this.$el.find("[" + self.bindingBlocks + "=commanbar]").append(self.toolbar).after(self.progressbar);
-			
-			//this.onInitToolbar();
-			
+			this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar).after(self.progressbar);
 			return this;
 		},
 		initProgressBar: function(){
@@ -1372,8 +1356,6 @@
 			};
 			return this;
 		},
-		onInitToolbar: function(){ return this },
-		
 		render: function(){ return this },
     	
 		// Compiles a model context, then applies bindings to the view:
