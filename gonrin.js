@@ -2233,6 +2233,48 @@
     		return this;
     	},
     	
+    	initToolbar: function(){
+			var self = this;
+			this.tools = this.tools || [];
+			this.toolbar = $('<div/>').addClass("toolbar");
+			
+			function toolIsVisible(tool) {
+	            var visible = "visible";
+	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && tool[visible] === true);
+	        };
+			
+			_.each(this.tools, function(tool, index) {
+				if((tool.type === "group") && toolIsVisible(tool)){
+					var $group = $("<div/>").addClass("btn-group").appendTo(self.toolbar);
+					if(tool.groupClass){
+						$group.addClass(tool.groupClass);
+					}
+					if(tool.buttons){
+						_.each(tool.buttons, function(button, _i) {
+							if((button.type === "button") && toolIsVisible(button)){
+								var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(button.label || button.name);
+								$tool.addClass(button.buttonClass || "btn-default");
+								$group.append($tool);
+								if(button.command){
+									$tool.bind("click", $.proxy(button.command, self));
+								}
+							}
+						});
+					}
+				}
+				if((tool.type === "button")&& toolIsVisible(tool)){
+					var $tool = $("<button/>").attr({"type":"button", "btn-name":tool.name}).addClass("btn").html(tool.label || tool.name);
+					$tool.addClass(tool.buttonClass || "btn-default");
+					self.toolbar.append($tool);
+					if(tool.command){
+						$tool.bind("click", $.proxy(tool.command, self));
+					}
+				}
+			});
+			this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar).after(self.progressbar);
+			return this;
+		},
+    	
     	
     	dialog: function(options){
     		var self = this;
@@ -2267,13 +2309,7 @@
 			
 			
 			var selectBtn = $('<button/>').attr({type:'button', class:'btn btn-success btn-sm', 'btn-name':'select'}).html(app.lang.select);
-			
-			
 			selectBtn.on("click", function(e) {
-				//var callbackKey = $(this).data("bb-handler");
-
-				//processCallback(e, dialog, callbacks[callbackKey]);
-				//dialog_el.modal("hide");
 				processCallback(e, dialog, callbacks.success);
 			});
 			
@@ -2283,10 +2319,54 @@
 			});
 			
 			body.find(".bootbox-body").append(this.$el);
-			this.$el.html(this.template);
-    		this.applyBindings();
-    		this.$el.prepend(this.progressbar).prepend(cancelBtn).prepend(selectBtn);
 			
+			this.$el.html(this.template);
+			//this.initToolbar();
+			this.tools = this.tools || [];
+			this.toolbar = $('<div/>').addClass("toolbar");
+			
+			$("<div/>").addClass("btn-group").appendTo(self.toolbar).append(selectBtn).append(cancelBtn);
+			
+			
+			function toolIsVisible(tool) {
+	            var visible = "visible";
+	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && tool[visible] === true);
+	        };
+			
+			_.each(this.tools, function(tool, index) {
+				if((tool.type === "group") && toolIsVisible(tool)){
+					var $group = $("<div/>").addClass("btn-group").appendTo(self.toolbar);
+					if(tool.groupClass){
+						$group.addClass(tool.groupClass);
+					}
+					if(tool.buttons){
+						_.each(tool.buttons, function(button, _i) {
+							if((button.type === "button") && toolIsVisible(button)){
+								var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(button.label || button.name);
+								$tool.addClass(button.buttonClass || "btn-default");
+								$group.append($tool);
+								if(button.command){
+									$tool.bind("click", $.proxy(button.command, self));
+								}
+							}
+						});
+					}
+				}
+				if((tool.type === "button")&& toolIsVisible(tool)){
+					var $tool = $("<button/>").attr({"type":"button", "btn-name":tool.name}).addClass("btn").html(tool.label || tool.name);
+					$tool.addClass(tool.buttonClass || "btn-default");
+					self.toolbar.append($tool);
+					if(tool.command){
+						$tool.bind("click", $.proxy(tool.command, self));
+					}
+				}
+			});
+			this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar).after(self.progressbar);
+			
+			
+			//end toolbar
+			this.applyBindings();
+  
 			if (options.animate === true) {
 				dialog.addClass("fade");
 			}
