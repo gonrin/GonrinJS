@@ -665,7 +665,7 @@
 	                	//show_row_numbers: true,
 						context: this.view,
 	                	fields: fields,
-	                	dataSource: this.view,
+	                	dataSource: this.view.collection,
 	                	primaryField:primaryField,
 	                	selectionMode: selectionMode,
 	                    tableIdPrefix: this.view.cid,
@@ -1306,7 +1306,7 @@
 			
 			function toolIsVisible(tool) {
 	            var visible = "visible";
-	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && tool[visible] === true);
+	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && (isFunction(tool[visible]) ? $.proxy(tool[visible], self) : (tool[visible] === true)) );
 	        };
 			
 			_.each(this.tools, function(tool, index) {
@@ -1744,8 +1744,8 @@
 		},
 		parse: function (response) {
     		this.page = response.page;
-    		this.num_rows = response.num_results;
-    		this.total_pages = response.total_pages;
+    		this.numRows = response.num_results;
+    		this.totalPages = response.total_pages;
 			return response.objects;
 		},
 	});
