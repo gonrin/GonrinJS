@@ -1755,15 +1755,30 @@
         	this.collection = new Gonrin.Collection(Gonrin.Model);
         	this.collection.url = this.urlPrefix + this.collectionName;
 	    },
-	    onInitToolbar: function(){
-    		var self = this;
-    		var createBtn = $('<button/>').attr({type:'button', class:'btn btn-success btn-sm', 'btn-name':'create'}).html(app.lang.create);
-			this.toolbar.addButton.call(this,createBtn, function(){
-				self.progressbar.hide();
-				var path = self.collectionName + '/model';
-				self.getApp().getRouter().navigate(path);
-			});
-    	},
+	    tools: [
+	      	    {
+	      	    	name: "default",
+	      	    	type: "group",
+	      	    	groupClass: "toolbar-group",
+	      	    	buttons: [
+	  					{
+	  		    	    	name: "create",
+	  		    	    	type: "button",
+	  		    	    	buttonClass: "btn-success btn-sm",
+	  		    	    	label: "Create",
+	  		    	    	command: function(){
+	  		    	    		var self = this;
+	  		    	    		if(self.progressbar){
+	  		    	    			self.progressbar.hide();
+	  		    	    		}
+	  		    	    		var path = self.collectionName + '/model';
+	  		    	    		self.getApp().getRouter().navigate(path);
+	  		    	    	}
+	  		    	    },
+	  					
+	      	    	]
+	      	    },
+	      	 ],
 	});
 	
 	
@@ -1782,50 +1797,81 @@
 			}
 			return this;
 		},
-		onInitToolbar: function(){
-    		var self = this;
-    		var backBtn = $('<button/>').attr({type:'button', class:'btn btn-default btn-sm', 'btn-name':'back'}).html(app.lang.back);
-			this.toolbar.addButton.call(this,backBtn, function(){
-				self.progressbar.hide();
-				self.getApp().getRouter().navigate(self.collectionName + "/collection");
-
-			});
-			var saveBtn = $('<button/>').attr({type:'button', class:'btn btn-success btn-sm', 'btn-name':'save'}).html(app.lang.save);
-			this.toolbar.addButton.call(this,saveBtn, function(){
-				self.progressbar.show();
-				self.model.save(null,{
-					success: function (model, respose, options) {
-						self.progressbar.hide();
-						self.getApp().notify("Save successfully");
-					},
-					error: function (model, xhr, options) {
-						//self.alertMessage("Something went wrong while processing the model", false);
-						self.getApp().notify('Save error');
-						self.progressbar.hide();
-					}
-				});
-
-			});
-			var id = this.getApp().getRouter().getParam("id");
-			if(id){
-				var deleteBtn = $('<button/>').attr({type:'button', class:'btn btn-danger btn-sm', 'btn-name':'delete'}).html(app.lang.delete);
-				this.toolbar.addButton.call(this,deleteBtn, function(){
-					self.progressbar.show();
-					self.model.destroy({
-						success: function(model, response) {
-							self.progressbar.hide();
-							self.getApp().getRouter().navigate(self.collectionName + "/collection");
-						},
-						error: function (model, xhr, options) {
-							//self.alertMessage("Something went wrong while processing the model", false);
-							self.getApp().notify('Delete error');
-							self.progressbar.hide();
+		tools : [
+    	    {
+    	    	name: "defaultgr",
+    	    	type: "group",
+    	    	groupClass: "toolbar-group",
+    	    	buttons: [
+					{
+						name: "back",
+						type: "button",
+						buttonClass: "btn-default btn-sm",
+						label: "Back",
+						command: function(){
+							var self = this;
+							if(self.progressbar){
+  		    	    			self.progressbar.hide();
+  		    	    		}
+			                self.getApp().getRouter().navigate(self.collectionName + "/collection");
 						}
-					});
-				});
-			}
-			
-    	},
+					},
+					{
+		    	    	name: "save",
+		    	    	type: "button",
+		    	    	buttonClass: "btn-success btn-sm",
+		    	    	label: "Save",
+		    	    	command: function(){
+		    	    		var self = this;
+		    	    		if(self.progressbar){
+  		    	    			self.progressbar.show();
+  		    	    		}
+		                    self.model.save(null,{
+		                        success: function (model, respose, options) {
+		                        	if(self.progressbar){
+		  		    	    			self.progressbar.hide();
+		  		    	    		}
+		                            self.getApp().notify("Save successfully");
+		                        },
+		                        error: function (model, xhr, options) {
+		                            //self.alertMessage("Something went wrong while processing the model", false);
+		                            self.getApp().notify('Save error');
+		                            if(self.progressbar){
+		  		    	    			self.progressbar.hide();
+		  		    	    		}
+		                        }
+		                    });
+		    	    	}
+		    	    },
+					{
+		    	    	name: "delete",
+		    	    	type: "button",
+		    	    	buttonClass: "btn-danger btn-sm",
+		    	    	label: "Delete",
+		    	    	visible: function(){
+		    	    		return this.getApp().getRouter().getParam("id") !== null;
+		    	    	},
+		    	    	command: function(){
+		    	    		var self = this;
+		    	    		self.progressbar.show();
+		                    self.model.destroy({
+		                        success: function(model, response) {
+		                        	if(self.progressbar){
+		  		    	    			self.progressbar.hide();
+		  		    	    		}
+		                            self.getApp().getRouter().navigate(self.collectionName + "/collection");
+		                        },
+		                        error: function (model, xhr, options) {
+		                            //self.alertMessage("Something went wrong while processing the model", false);
+		                            self.getApp().notify('Delete error');
+		                            self.progressbar.hide();
+		                        }
+		                    });
+		    	    	}
+		    	    },
+    	    	]
+    	    },
+    	],
 	});
 	
 	// Gonrin.Application
