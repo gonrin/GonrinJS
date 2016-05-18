@@ -926,6 +926,10 @@
 							    case "datetime":
 							    	
 							    	uicontrol = field.uicontrol || "datetimepicker";
+							    	field.format = field.format || "YYYY-MM-DDTHH:mm:SS";
+							    	field.textFormat = field.textFormat || "DD/MM/YYYY HH:mm:SS";
+							    	field.extraFormats = field.extraFormats || ['DDMMYYYY'];
+							    	
 							    	break;
 							    case "ref":
 							    	//load entity
@@ -2261,6 +2265,7 @@
 	Gonrin.DialogView = Gonrin.CollectionView.extend({
     	selectedItems : [],
     	selectionMode: "single",
+    	tools : null,
 	    initModel: function(){
 	       	this.collection = new Gonrin.Collection(Gonrin.Model);
 	      	this.collection.url = this.urlPrefix + this.collectionName;
