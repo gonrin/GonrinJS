@@ -1180,7 +1180,7 @@
 	// Gonrin.View
 	// ----------
 	var viewMap;
-	var viewProps = ['schema', 'selectionMode', 'viewModel', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
+	var viewProps = ['schema', 'selectionMode', 'viewModel', 'viewData', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
 		_is_gonrin_view:true,
@@ -1209,6 +1209,7 @@
 			return this._b || (this._b = []);
 		},
     	modelSchema: null,
+    	viewData: null,
 		// Bindings definition:
 		// this setting defines a DOM attribute name used to query for bindings.
 		// Alternatively, this be replaced with a hash table of key/value pairs,
