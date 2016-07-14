@@ -1308,10 +1308,10 @@
 			var self = this;
 			this.tools = this.tools || [];
 			this.toolbar = $('<div/>').addClass("toolbar");
-			
+
 			function toolIsVisible(tool) {
 	            var visible = "visible";
-	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && (isFunction(tool[visible]) ? $.proxy(tool[visible], self) : (tool[visible] === true)) );
+	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && (isFunction(tool[visible]) ? tool[visible].call(self) : (tool[visible] === true)) );
 	        };
 			
 			_.each(this.tools, function(tool, index) {
