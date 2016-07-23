@@ -1793,6 +1793,7 @@
 			var self = this;
 			if(this.modelSchema){
 				var def = this.getDefaultModel();
+				
 				if(def){
 					this.model = new Gonrin.Model(def);
 				}else{
@@ -1800,8 +1801,10 @@
 				}
 	        	this.model.urlRoot = this.urlPrefix + this.collectionName;
 			}
+			
 			return this;
 		},
+		
 		tools : [
     	    {
     	    	name: "defaultgr",
@@ -1818,7 +1821,8 @@
 							if(self.progressbar){
   		    	    			self.progressbar.hide();
   		    	    		}
-			                self.getApp().getRouter().navigate(self.collectionName + "/collection");
+							Backbone.history.history.back();
+			                //self.getApp().getRouter().navigate(self.collectionName + "/collection");
 						}
 					},
 					{
