@@ -1793,6 +1793,9 @@
 		
 		initModel: function(){
 			var self = this;
+			if(!!this.model){
+				return this;
+			}
 			if(this.modelSchema){
 				var def = this.getDefaultModel();
 				
