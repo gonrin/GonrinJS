@@ -921,7 +921,7 @@
 							    	uicontrol = field.uicontrol || "textbox";
 							        break;
 							    case "number":
-							    	uicontrol = field.uicontrol || "textbox";
+							    	uicontrol = field.uicontrol || "numeric";
 							        break;
 							    case "datetime":
 							    	uicontrol = field.uicontrol || "datetimepicker";
@@ -957,7 +957,7 @@
 					};
 				},
 				get: function($element) {
-					if(!!$element.data('gonrin')){
+					if( (!!$element.data('gonrin'))&& !!($element.data('gonrin').getValue)){
 						return $element.data('gonrin').getValue();
 					}
 					return $element.val();
