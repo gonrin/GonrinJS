@@ -918,13 +918,12 @@
 							
 							switch(field.type) {
 							    case "string":
-							        
+							    	uicontrol = field.uicontrol || "textbox";
+							        break;
 							    case "number":
-							    	
 							    	uicontrol = field.uicontrol || "textbox";
 							        break;
 							    case "datetime":
-							    	
 							    	uicontrol = field.uicontrol || "datetimepicker";
 							    	field.format = field.format || "YYYY-MM-DDTHH:mm:SS";
 							    	field.textFormat = field.textFormat || "DD/MM/YYYY HH:mm:SS";
@@ -958,6 +957,9 @@
 					};
 				},
 				get: function($element) {
+					if(!!$element.data('gonrin')){
+						return $element.data('gonrin').getValue();
+					}
 					return $element.val();
 				},
 				set: function($element, value) {
