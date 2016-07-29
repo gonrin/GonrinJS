@@ -1900,6 +1900,8 @@
 		this.router = this.router || new Router();
 		this.session = {token:null, expired:null};
 		this.permission = null;
+		this.currentUser = null;
+		this._g = {};
 	};
 	// Set up inheritance for the app
 	Application.extend = extend;
