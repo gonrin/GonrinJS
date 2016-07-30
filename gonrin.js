@@ -653,6 +653,10 @@
 					this.v = {};
 					
 					var fields = _.result(this.view, 'fields') || [];
+					var filterMode = _.result(this.view, 'filterMode') || "server";
+					
+					var filters = _.result(this.view, 'filters');
+					
 					var primaryField = _.result(this.view, 'primaryField') || "id";
 					var selectionMode = _.result(this.view, 'selectionMode') || "single";
 				
@@ -665,6 +669,8 @@
 	                	//show_row_numbers: true,
 						context: this.view,
 	                	fields: fields,
+	                	filters: filters,
+	                	filterMode: filterMode,
 	                	dataSource: this.view.collection,
 	                	primaryField:primaryField,
 	                	selectionMode: selectionMode,
@@ -1762,6 +1768,7 @@
         	this.collection = new Gonrin.Collection(Gonrin.Model);
         	this.collection.url = this.urlPrefix + this.collectionName;
 	    },
+	    filters: null,
 	    tools: [
 	      	    {
 	      	    	name: "default",
