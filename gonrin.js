@@ -1311,26 +1311,28 @@
     		
     		return this;
     	},
-    	
-    	initToolbar: function(){
+    	_toolIsVisible : function(tool){
 			var self = this;
-			this.tools = this.tools || [];
-			this.toolbar = $('<div/>').addClass("toolbar");
-
-			function toolIsVisible(tool) {
-	            var visible = "visible";
-	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && (isFunction(tool[visible]) ? tool[visible].call(self) : (tool[visible] === true)) );
-	        };
+			var visible = "visible";
+            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && (isFunction(tool[visible]) ? tool[visible].call(self) : (tool[visible] === true)) );
+		},
+    	initToolbar: function(tools){
+			var self = this;
+			this.tools = this.tools || tools || [];
+			if(!this.toolbar){
+				this.toolbar = $('<div/>').addClass("toolbar");
+				this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar).after(self.progressbar);
+			}
 			
 			_.each(this.tools, function(tool, index) {
-				if((tool.type === "group") && toolIsVisible(tool)){
+				if((tool.type === "group") && self._toolIsVisible(tool)){
 					var $group = $("<div/>").addClass("btn-group").appendTo(self.toolbar);
 					if(tool.groupClass){
 						$group.addClass(tool.groupClass);
 					}
 					if(tool.buttons){
 						_.each(tool.buttons, function(button, _i) {
-							if((button.type === "button") && toolIsVisible(button)){
+							if((button.type === "button") && self._toolIsVisible(button)){
 								var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(button.label || button.name);
 								$tool.addClass(button.buttonClass || "btn-default");
 								$group.append($tool);
@@ -1341,7 +1343,7 @@
 						});
 					}
 				}
-				if((tool.type === "button")&& toolIsVisible(tool)){
+				if((tool.type === "button")&& self._toolIsVisible(tool)){
 					var $tool = $("<button/>").attr({"type":"button", "btn-name":tool.name}).addClass("btn").html(tool.label || tool.name);
 					$tool.addClass(tool.buttonClass || "btn-default");
 					self.toolbar.append($tool);
@@ -1350,8 +1352,12 @@
 					}
 				}
 			});
-			this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar).after(self.progressbar);
 			return this;
+		},
+		extendToolbar: function(tools){
+			if(!!tools){
+				this.initToolbar(tools);
+			}
 		},
 		initProgressBar: function(){
 			var self = this;
@@ -1853,6 +1859,7 @@
 		  		    	    			self.progressbar.hide();
 		  		    	    		}
 		                            self.getApp().notify("Save successfully");
+		                            self.getApp().getRouter().navigate(self.collectionName + "/collection");
 		                        },
 		                        error: function (model, xhr, options) {
 		                            //self.alertMessage("Something went wrong while processing the model", false);
