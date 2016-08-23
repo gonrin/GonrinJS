@@ -1785,7 +1785,7 @@
 	  		    	    	name: "create",
 	  		    	    	type: "button",
 	  		    	    	buttonClass: "btn-success btn-sm",
-	  		    	    	label: "Create",
+	  		    	    	label: "Tạo mới",
 	  		    	    	command: function(){
 	  		    	    		var self = this;
 	  		    	    		if(self.progressbar){
@@ -1833,7 +1833,7 @@
 						name: "back",
 						type: "button",
 						buttonClass: "btn-default btn-sm",
-						label: "Back",
+						label: "Quay lại",
 						command: function(){
 							var self = this;
 							if(self.progressbar){
@@ -1847,7 +1847,7 @@
 		    	    	name: "save",
 		    	    	type: "button",
 		    	    	buttonClass: "btn-success btn-sm",
-		    	    	label: "Save",
+		    	    	label: "Lưu",
 		    	    	command: function(){
 		    	    		var self = this;
 		    	    		if(self.progressbar){
@@ -1875,7 +1875,7 @@
 		    	    	name: "delete",
 		    	    	type: "button",
 		    	    	buttonClass: "btn-danger btn-sm",
-		    	    	label: "Delete",
+		    	    	label: "Xoá",
 		    	    	visible: function(){
 		    	    		return this.getApp().getRouter().getParam("id") !== null;
 		    	    	},
