@@ -1281,8 +1281,9 @@
 					};
 					field.type = schema_field.type;
 				}else{
-					self.fields.splice(key, 1);
-					
+					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
+						self.fields.splice(key, 1);
+					}
 				}
         	}
         	
