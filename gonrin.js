@@ -936,6 +936,9 @@
 							    	field.extraFormats = field.extraFormats || ['DDMMYYYY'];
 							    	
 							    	break;
+							    case "boolean":
+							    	uicontrol = field.uicontrol || "textbox";
+							    	break;
 							    case "ref":
 							    	//load entity
 							    	var reflink = _.result(model_schema, field.field) || {};
