@@ -1191,7 +1191,7 @@
 	// Gonrin.View
 	// ----------
 	var viewMap;
-	var viewProps = ['schema', 'selectionMode', 'viewModel', 'viewData', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
+	var viewProps = ['schema', 'selectionMode', 'viewModel', 'viewData','filters','filterMode', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
 		_is_gonrin_view:true,
@@ -2296,7 +2296,8 @@
     	selectedItems : [],
     	selectionMode: "single",
     	tools : null,
-	    initModel: function(){
+    	$dialog: null,
+	    /*initModel: function(){
 	       	this.collection = new Gonrin.Collection(Gonrin.Model);
 	      	this.collection.url = this.urlPrefix + this.collectionName;
 	        	
@@ -2309,61 +2310,26 @@
 				}
 		    	this.model.urlRoot = this.urlPrefix + this.collectionName;
 			}
-		},
+		},*/
     	render:function(){
     		return this;
     	},
     	
-    	initToolbar: function(){
-			var self = this;
-			this.tools = this.tools || [];
-			this.toolbar = $('<div/>').addClass("toolbar");
-			
-			function toolIsVisible(tool) {
-	            var visible = "visible";
-	            return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && tool[visible] === true);
-	        };
-			
-			_.each(this.tools, function(tool, index) {
-				if((tool.type === "group") && toolIsVisible(tool)){
-					var $group = $("<div/>").addClass("btn-group").appendTo(self.toolbar);
-					if(tool.groupClass){
-						$group.addClass(tool.groupClass);
-					}
-					if(tool.buttons){
-						_.each(tool.buttons, function(button, _i) {
-							if((button.type === "button") && toolIsVisible(button)){
-								var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(button.label || button.name);
-								$tool.addClass(button.buttonClass || "btn-default");
-								$group.append($tool);
-								if(button.command){
-									$tool.bind("click", $.proxy(button.command, self));
-								}
-							}
-						});
-					}
-				}
-				if((tool.type === "button")&& toolIsVisible(tool)){
-					var $tool = $("<button/>").attr({"type":"button", "btn-name":tool.name}).addClass("btn").html(tool.label || tool.name);
-					$tool.addClass(tool.buttonClass || "btn-default");
-					self.toolbar.append($tool);
-					if(tool.command){
-						$tool.bind("click", $.proxy(tool.command, self));
-					}
-				}
-			});
-			this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar).after(self.progressbar);
-			return this;
-		},
-    	
+    	close: function(){
+    		var self = this;
+    		if (!!self.$dialog){
+    			self.$dialog.modal("hide");
+    			//self.$dialog.remove();
+    		}
+    	},
     	
     	dialog: function(options){
     		var self = this;
     		options = sanitize(options);
    
-			var dialog = $(templates.dialog);
-			var innerDialog = dialog.find(".modal-dialog");
-			var body = dialog.find(".modal-body");
+			this.$dialog = $(templates.dialog);
+			var innerDialog = this.$dialog.find(".modal-dialog");
+			var body = this.$dialog.find(".modal-body");
 			var buttons = options.buttons;
 			var buttonStr = "";
 			var callbacks = {
@@ -2391,12 +2357,12 @@
 			
 			var selectBtn = $('<button/>').attr({type:'button', class:'btn btn-success btn-sm', 'btn-name':'select'}).html(app.lang.select);
 			selectBtn.on("click", function(e) {
-				processCallback(e, dialog, callbacks.success);
+				processCallback(e, self.$dialog, callbacks.success);
 			});
 			
 			var cancelBtn = $('<button/>').attr({type:'button', class:'btn btn-default btn-sm', 'btn-name':'cancel'}).html(app.lang.cancel);
 			cancelBtn.on("click", function(e) {
-				processCallback(e, dialog, callbacks.escape);
+				processCallback(e, self.$dialog, callbacks.escape);
 			});
 			
 			body.find(".bootbox-body").append(this.$el);
@@ -2449,11 +2415,11 @@
 			this.applyBindings();
   
 			if (options.animate === true) {
-				dialog.addClass("fade");
+				self.$dialog.addClass("fade");
 			}
 
 			if (options.className) {
-				dialog.addClass(options.className);
+				self.$dialog.addClass(options.className);
 			}
 
 			if (options.size === "large") {
@@ -2477,12 +2443,12 @@
 			}*/
 
 			if (options.title) {
-				dialog.find(".modal-title").html(options.title);
+				self.$dialog.find(".modal-title").html(options.title);
 			}
 
 			if (buttonStr.length) {
 				body.after(templates.footer);
-				dialog.find(".modal-footer").html(buttonStr);
+				self.$dialog.find(".modal-footer").html(buttonStr);
 			}
 
 
@@ -2492,23 +2458,23 @@
 			 * modal has performed certain actions
 			 */
 
-			dialog.on("hidden.bs.modal", function(e) {
+			self.$dialog.on("hidden.bs.modal", function(e) {
 				// ensure we don't accidentally intercept hidden events triggered
 				// by children of the current dialog. We shouldn't anymore now BS
 				// namespaces its events; but still worth doing
 				if (e.target === this) {
-					dialog.remove();
+					self.$dialog.remove();
 				}
 			});
 
 
-			dialog.on("shown.bs.modal", function() {
-				dialog.find(".btn-primary:first").focus();
+			self.$dialog.on("shown.bs.modal", function() {
+				self.$dialog.find(".btn-primary:first").focus();
 			});
 
-			dialog.on("escape.close.bb", function(e) {
+			self.$dialog.on("escape.close.bb", function(e) {
 				if (callbacks.escape) {
-					processCallback(e, dialog, callbacks.escape);
+					processCallback(e, self.$dialog, callbacks.escape);
 				}
 			});
 
@@ -2517,10 +2483,10 @@
 			 * interaction with our dialog
 			 */
 
-			dialog.on("click", ".modal-footer button", function(e) {
+			self.$dialog.on("click", ".modal-footer button", function(e) {
 				var callbackKey = $(this).data("bb-handler");
 
-				processCallback(e, dialog, callbacks[callbackKey]);
+				processCallback(e, self.$dialog, callbacks[callbackKey]);
 			});
 
 			/*dialog.on("click", ".bootbox-close-button", function(e) {
@@ -2530,9 +2496,9 @@
 				processCallback(e, dialog, callbacks.escape);
 			});*/
 
-			dialog.on("keyup", function(e) {
+			self.$dialog.on("keyup", function(e) {
 				if (e.which === 27) {
-					dialog.trigger("escape.close.bb");
+					self.$dialog.trigger("escape.close.bb");
 				}
 			});
 
@@ -2541,16 +2507,16 @@
 			// functionality and then giving the resulting object back
 			// to our caller
 
-			$(options.container).append(dialog);
+			$(options.container).append(self.$dialog);
 
-			dialog.modal({
+			self.$dialog.modal({
 				backdrop: options.backdrop ? "static": false,
 						keyboard: false,
 						show: false
 			});
 
 			if (options.show) {
-				dialog.modal("show");
+				self.$dialog.modal("show");
 			}
     		return this;
     	}
