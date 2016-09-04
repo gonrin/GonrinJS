@@ -12,7 +12,7 @@
 	}
 
 }(this, function(_, Backbone) {
-
+	
 	var extend = function(protoProps, staticProps) {
 		var parent = this;
 		var child;
@@ -653,9 +653,13 @@
 					this.v = {};
 					
 					var fields = _.result(this.view, 'fields') || [];
-					var filterMode = _.result(this.view, 'filterMode') || "server";
-					
+					var filterMode = _.result(this.view, 'filterMode');
 					var filters = _.result(this.view, 'filters');
+					
+					var orderByMode = _.result(this.view, 'orderByMode');
+					var orderBy = _.result(this.view, 'orderBy');
+					
+					var paginationMode = _.result(this.view, 'paginationMode');
 					
 					var primaryField = _.result(this.view, 'primaryField') || "id";
 					var selectionMode = _.result(this.view, 'selectionMode') || "single";
@@ -671,13 +675,16 @@
 	                	fields: fields,
 	                	filters: filters,
 	                	filterMode: filterMode,
+	                	orderBy: orderBy,
+	                	orderByMode: orderByMode,
+	                	paginationMode: paginationMode,
 	                	dataSource: this.view.collection,
 	                	primaryField:primaryField,
 	                	selectionMode: selectionMode,
 	                    tableIdPrefix: this.view.cid,
 	                    selectedItems:[],
-	                    useFilters:false,
 	                    onRowClick:onRowClick,
+	                    language: this.view.getApp().lang
 	                });
 				},
 				set: function($element, collection, target) {
@@ -958,6 +965,7 @@
 						        	console.log("$ is not support " + uicontrol);
 								}else{
 									$element[uicontrol](field);
+									field.$el = $element;
 								}
 							}
 					        
@@ -1191,7 +1199,7 @@
 	// Gonrin.View
 	// ----------
 	var viewMap;
-	var viewProps = ['schema', 'selectionMode', 'viewModel', 'viewData','filters','filterMode', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
+	var viewProps = ['schema', 'selectionMode', 'viewModel', 'viewData','filters','filterMode','orderBy','orderByMode','paginationMode', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
 		_is_gonrin_view:true,
@@ -1228,13 +1236,16 @@
 		bindings: 'data-bind',
 		
 		bindingBlocks: 'block-bind',
+		paginationMode : 'server',
+		filterMode : 'server',
+		orderByMode : 'server',
 
 		// Setter options:
 		// Defines an optional hashtable of options to be passed to setter operations.
 		// Accepts a custom option '{save:true}' that will write to the model via ".save()".
 		setterOptions: null,
 		getApp: function(){
-			return window.app;
+			return gonrinApp();
 		},
 		initModel: function(){ return this },
 		getDefaultModel: function(){
@@ -1283,6 +1294,7 @@
 						field.label = schema_field.label ? schema_field.label: field.field;
 					};
 					field.type = schema_field.type;
+					field.$el = field.$el || null;
 				}else{
 					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
 						self.fields.splice(key, 1);
@@ -1290,29 +1302,6 @@
 				}
         	}
         	
-        	/*
-    		_.each(this.fields, function(field, key) {
-				if((!isObject(field))|| (field.field === null) || ((field.field === undefined))){
-					self.fields.splice(key, 1);
-				
-					return;
-				}
-				var schema_field = schema[field.field];
-				
-				if(schema_field){
-					if(!field.required){
-						field.required = schema_field.required ? schema_field.required: false;
-					};
-					if(!field.label){
-						field.label = schema_field.label ? schema_field.label: field.field;
-					};
-					field.type = schema_field.type;
-				}else{
-					self.fields.splice(key, 1);
-					return;
-				}
-			});*/
-    		
     		return this;
     	},
     	_toolIsVisible : function(tool){
@@ -1321,6 +1310,7 @@
             return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && (isFunction(tool[visible]) ? tool[visible].call(self) : (tool[visible] === true)) );
 		},
     	initToolbar: function(tools){
+    		
 			var self = this;
 			this.tools = this.tools || tools || [];
 			if(!this.toolbar){
@@ -1336,8 +1326,9 @@
 					}
 					if(tool.buttons){
 						_.each(tool.buttons, function(button, _i) {
+							var label = self.getApp().translate(button.label) || button.name;
 							if((button.type === "button") && self._toolIsVisible(button)){
-								var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(button.label || button.name);
+								var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(label);
 								$tool.addClass(button.buttonClass || "btn-default");
 								$group.append($tool);
 								if(button.command){
@@ -1348,7 +1339,8 @@
 					}
 				}
 				if((tool.type === "button")&& self._toolIsVisible(tool)){
-					var $tool = $("<button/>").attr({"type":"button", "btn-name":tool.name}).addClass("btn").html(tool.label || tool.name);
+					var label = self.getApp().translate(tool.label) || tool.name;
+					var $tool = $("<button/>").attr({"type":"button", "btn-name":tool.name}).addClass("btn").html(label);
 					$tool.addClass(tool.buttonClass || "btn-default");
 					self.toolbar.append($tool);
 					if(tool.command){
@@ -1754,13 +1746,14 @@
 	});
 
 	var collectionMap;
-	var collectionProps = ['page, num_rows'];
+	var collectionProps = ['page, num_rows', 'filters'];
 
 	Gonrin.Collection = Backbone.Collection.extend({
 		_super: Backbone.Collection,
 		page:null,
 		total_pages: null,
 		num_rows:null,
+		filters: null,
 		constructor: function(attributes, options) {
 			_.extend(this, _.pick(options||{}, collectionProps));
 			_super(this, 'constructor', arguments);
@@ -1789,7 +1782,7 @@
 	  		    	    	name: "create",
 	  		    	    	type: "button",
 	  		    	    	buttonClass: "btn-success btn-sm",
-	  		    	    	label: "Tạo mới",
+	  		    	    	label: "app.lang.create",
 	  		    	    	command: function(){
 	  		    	    		var self = this;
 	  		    	    		if(self.progressbar){
@@ -1837,7 +1830,7 @@
 						name: "back",
 						type: "button",
 						buttonClass: "btn-default btn-sm",
-						label: "Quay lại",
+						label: "app.lang.back",
 						command: function(){
 							var self = this;
 							if(self.progressbar){
@@ -1851,7 +1844,7 @@
 		    	    	name: "save",
 		    	    	type: "button",
 		    	    	buttonClass: "btn-success btn-sm",
-		    	    	label: "Lưu",
+		    	    	label: "app.lang.save",
 		    	    	command: function(){
 		    	    		var self = this;
 		    	    		if(self.progressbar){
@@ -1879,7 +1872,7 @@
 		    	    	name: "delete",
 		    	    	type: "button",
 		    	    	buttonClass: "btn-danger btn-sm",
-		    	    	label: "Xoá",
+		    	    	label: "app.lang.delete",
 		    	    	visible: function(){
 		    	    		return this.getApp().getRouter().getParam("id") !== null;
 		    	    	},
@@ -1920,6 +1913,7 @@
 		this.permission = null;
 		this.currentUser = null;
 		this._g = {};
+		this.registerApp();
 	};
 	// Set up inheritance for the app
 	Application.extend = extend;
@@ -1934,6 +1928,22 @@
 				}
 			}
 			return false;
+		},
+		registerApp: function(){
+			var self = this;
+			window._gonrinApp = this;
+			window.gonrinApp = function () {
+			    return window._gonrinApp;
+			};
+		},
+		translate: function(str){
+			if( (!!str) && (str.startsWith('app.lang.'))){
+				var labelArr = str.split("app.lang.");
+				if(labelArr.length > 1){
+					return this.lang[labelArr[1]] || str;
+				}
+			}
+			return str;
 		},
 		postLogin: function(){ return this },
 		
@@ -1962,7 +1972,7 @@
 	var Router = Gonrin.Router = Backbone.Router.extend({
 		currentPage: null,
 		getApp: function(){
-			return window.app;
+			return gonrinApp();
 		},
 		errorPage: function(){
 			this.navigate("error");
@@ -2297,20 +2307,7 @@
     	selectionMode: "single",
     	tools : null,
     	$dialog: null,
-	    /*initModel: function(){
-	       	this.collection = new Gonrin.Collection(Gonrin.Model);
-	      	this.collection.url = this.urlPrefix + this.collectionName;
-	        	
-			if(this.modelSchema){
-				var def = this.getDefaultModel();
-				if(def){
-					this.model = new Gonrin.Model(def);
-				}else{
-					this.model = new Gonrin.Model();
-				}
-		    	this.model.urlRoot = this.urlPrefix + this.collectionName;
-			}
-		},*/
+	    
     	render:function(){
     		return this;
     	},
@@ -2319,7 +2316,6 @@
     		var self = this;
     		if (!!self.$dialog){
     			self.$dialog.modal("hide");
-    			//self.$dialog.remove();
     		}
     	},
     	
@@ -2371,9 +2367,7 @@
 			//this.initToolbar();
 			this.tools = this.tools || [];
 			this.toolbar = $('<div/>').addClass("toolbar");
-			
 			$("<div/>").addClass("btn-group").appendTo(self.toolbar).append(selectBtn).append(cancelBtn);
-			
 			
 			function toolIsVisible(tool) {
 	            var visible = "visible";
@@ -2400,6 +2394,7 @@
 					}
 				}
 				if((tool.type === "button")&& toolIsVisible(tool)){
+					
 					var $tool = $("<button/>").attr({"type":"button", "btn-name":tool.name}).addClass("btn").html(tool.label || tool.name);
 					$tool.addClass(tool.buttonClass || "btn-default");
 					self.toolbar.append($tool);
