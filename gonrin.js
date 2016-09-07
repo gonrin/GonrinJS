@@ -1254,6 +1254,9 @@
 				_.each(this.modelSchema, function(props, key) {
 					if(isObject(props)){
 						defaults[key] = _.result(props, 'default') || null;
+						if ((defaults[key] === null) && (_.result(props, 'type') === "list")){
+							defaults[key] = [];
+						}
 					}
 				});
 				return defaults;
@@ -2307,7 +2310,22 @@
     	selectionMode: "single",
     	tools : null,
     	$dialog: null,
-	    
+    	
+    	//TODO: remove initModel.
+    	initModel: function(){
+	       	this.collection = new Gonrin.Collection(Gonrin.Model);
+	      	this.collection.url = this.urlPrefix + this.collectionName;
+	        	
+			if(this.modelSchema){
+				var def = this.getDefaultModel();
+				if(def){
+					this.model = new Gonrin.Model(def);
+				}else{
+					this.model = new Gonrin.Model();
+				}
+		    	this.model.urlRoot = this.urlPrefix + this.collectionName;
+			}
+		},
     	render:function(){
     		return this;
     	},
@@ -2351,12 +2369,12 @@
 			});*/
 			
 			
-			var selectBtn = $('<button/>').attr({type:'button', class:'btn btn-success btn-sm', 'btn-name':'select'}).html(app.lang.select);
+			var selectBtn = $('<button/>').attr({type:'button', class:'btn btn-success btn-sm', 'btn-name':'select'}).html(self.getApp().translate('app.lang.select'));
 			selectBtn.on("click", function(e) {
 				processCallback(e, self.$dialog, callbacks.success);
 			});
 			
-			var cancelBtn = $('<button/>').attr({type:'button', class:'btn btn-default btn-sm', 'btn-name':'cancel'}).html(app.lang.cancel);
+			var cancelBtn = $('<button/>').attr({type:'button', class:'btn btn-default btn-sm', 'btn-name':'cancel'}).html(self.getApp().translate('app.lang.cancel'));
 			cancelBtn.on("click", function(e) {
 				processCallback(e, self.$dialog, callbacks.escape);
 			});
