@@ -652,24 +652,29 @@
 					//if (!isFunction(this.i)) throw('Binding "collection" requires an itemView.');
 					this.v = {};
 					
-					var fields = _.result(this.view, 'fields') || [];
-					var filterMode = _.result(this.view, 'filterMode');
-					var filters = _.result(this.view, 'filters');
 					
-					var orderByMode = _.result(this.view, 'orderByMode');
-					var orderBy = _.result(this.view, 'orderBy');
+					//prepare uiControl
 					
-					var paginationMode = _.result(this.view, 'paginationMode');
+					this.view.uiControl.fields = this.view.uiControl.fields || [];
+					this.view.uiControl.filterMode = this.view.uiControl.filterMode || "server";
+					this.view.uiControl.filters = this.view.uiControl.filters || null;
+					this.view.uiControl.orderByMode = this.view.uiControl.orderByMode || "server";
+					this.view.uiControl.orderBy = this.view.uiControl.orderBy || null;
+					this.view.uiControl.paginationMode = this.view.uiControl.paginationMode || "server";
 					
-					var primaryField = _.result(this.view, 'primaryField') || "id";
-					var selectionMode = _.result(this.view, 'selectionMode') || "single";
-				
-					var selected_id = null;
-					var visible_columns = [];
+					this.view.uiControl.primaryField = this.view.uiControl.primaryField || "id";
+					
+					this.view.uiControl.selectionMode = this.view.uiControl.selectionMode || "single";
+					this.view.uiControl.onRowClick = this.view.uiControl.onRowClick || function(event, params){};
+					
+					this.view.uiControl.context = this.view;
+					this.view.uiControl.dataSource = this.view.collection;
+					this.view.uiControl.language = this.view.getApp().lang;
+					this.view.uiControl.tableIdPrefix = this.view.cid;
 					
 					var onRowClick = this.view.onRowClick || function(event, params){};
 					
-					$element.grid({
+					/*$element.grid({
 	                	//show_row_numbers: true,
 						context: this.view,
 	                	fields: fields,
@@ -685,8 +690,10 @@
 	                    selectedItems:[],
 	                    onRowClick:onRowClick,
 	                    language: this.view.getApp().lang
-	                });
-					this.view.collectionElement = $element;
+	                });*/
+					$element.grid(this.view.uiControl);
+					
+					this.view.uiControl.$el = $element;
 				},
 				set: function($element, collection, target) {
 					//gonrin Grid here
@@ -918,7 +925,7 @@
 					var bind_attr = context['$bind_attribute'];
 				
 					if(bind_attr && (typeof bind_attr === "string")){
-						var fields = _.result(this.view,'fields') || [],
+						var fields = _.result(this.view,'uiControl') || [],
 							model_schema = _.result(this.view,'modelSchema') || {},
 							field = null;
 						
@@ -949,7 +956,7 @@
 							    	break;
 							    	
 							    //TODO: remove ref type
-							    case "ref":
+							    /*case "ref":
 							    	//load entity
 							    	var reflink = _.result(model_schema, field.field) || {};
 							    	field.context = this.view;
@@ -957,7 +964,7 @@
 							    	field.valueField = reflink["refValueField"] || null;
 							    	field.dataSource = reflink["$ref"];
 							    	uicontrol = "gonrinref";
-							        break;
+							        break;*/
 							    
 							    default:
 							        
@@ -968,7 +975,7 @@
 						        	console.log("$ is not support " + uicontrol);
 								}else{
 									$element[uicontrol](field);
-									field.fieldElement = $element;
+									field.$el = $element;
 								}
 							}
 					        
@@ -1202,18 +1209,14 @@
 	// Gonrin.View
 	// ----------
 	var viewMap;
-	var viewProps = ['schema', 'selectionMode', 'viewModel', 'viewData','filters','filterMode','orderBy','orderByMode','paginationMode', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
+	var viewProps = ['schema', 'viewModel', 'viewData', 'uiControl', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
-		//_is_gonrin_view:true,
 		_super: Backbone.View,
-		fields: [],
 		// Backbone.View constructor override:
 		// sets up binding controls around call to super.
 		constructor: function(options) {
-			//var self = this;
 			_.extend(this, _.pick(options||{}, viewProps));
-			
 			_super(this, 'constructor', arguments);
 			
     		this.initModel();
@@ -1240,9 +1243,7 @@
 		bindings: 'data-bind',
 		
 		bindingBlocks: 'block-bind',
-		paginationMode : 'server',
-		filterMode : 'server',
-		orderByMode : 'server',
+		
 
 		// Setter options:
 		// Defines an optional hashtable of options to be passed to setter operations.
@@ -1267,64 +1268,10 @@
 			}
 			return null;
 		},
-		collectionElement: null,
-	    getCollectionElement: function(){
-	    	return this.collectionElement;
-	    },
-    	initFields: function(){
-    		var self = this;
-        	var schema = _.result(this, "modelSchema") || {};
-        	
-        	this.fields = this.fields || [];
-        	
-        	var fields_from_schema = [];
-        	_.each(schema, function(obj, key) {
-        		var field = {field: key};
-        		var viewfieldlst = $.grep(self.fields, function(f){ return f.field === key; });
-        		if( !(viewfieldlst && (viewfieldlst.length == 1))){
-        			self.fields.push(field);
-        		}
-        		
-        		//fields_from_schema.push(field);
-        	});
-        	
-        	var key = this.fields.length;
-        	while (key--) {
-        		var field = this.fields[key];
-        	    if((!isObject(field))|| (field.field === null) || ((field.field === undefined))){
-					self.fields.splice(key, 1);
-					continue;
-				}
-				var schema_field = schema[field.field];
-				
-				if(schema_field){
-					if(!field.required){
-						field.required = schema_field.required ? schema_field.required: false;
-					};
-					if(!field.label){
-						field.label = schema_field.label ? schema_field.label: field.field;
-					};
-					field.type = schema_field.type;
-					field.$el = field.$el || null;
-				}else{
-					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
-						self.fields.splice(key, 1);
-					}
-				}
-        	}
-        	
-    		return this;
-    	},
-    	getFieldElement: function(name){
-    		var self = this;
-    		for (var i = 0; i < self.fields.length; i++){
-    			var field = self.fields[i];
-    			if (field.field === name){
-    				return field.fieldElement || null;
-    			}
-    		};
-    		return null;
-    	},
+		initFields: function(){
+			return this;
+		},
+    	
     	_toolIsVisible : function(tool){
 			var self = this;
 			var visible = "visible";
@@ -1792,36 +1739,83 @@
         	this.collection = new Gonrin.Collection(Gonrin.Model);
         	this.collection.url = this.urlPrefix + this.collectionName;
 	    },
-	    filters: null,
+	    //filters: null,
 	    tools: [
-	      	    {
-	      	    	name: "default",
-	      	    	type: "group",
-	      	    	groupClass: "toolbar-group",
-	      	    	buttons: [
-	  					{
-	  		    	    	name: "create",
-	  		    	    	type: "button",
-	  		    	    	buttonClass: "btn-success btn-sm",
-	  		    	    	label: "app.lang.create",
-	  		    	    	command: function(){
-	  		    	    		var self = this;
-	  		    	    		if(self.progressbar){
-	  		    	    			self.progressbar.hide();
-	  		    	    		}
-	  		    	    		var path = self.collectionName + '/model';
-	  		    	    		self.getApp().getRouter().navigate(path);
-	  		    	    	}
-	  		    	    },
-	  					
-	      	    	]
-	      	    },
-	      	 ],
+      	    {
+      	    	name: "default",
+      	    	type: "group",
+      	    	groupClass: "toolbar-group",
+      	    	buttons: [
+  					{
+  		    	    	name: "create",
+  		    	    	type: "button",
+  		    	    	buttonClass: "btn-success btn-sm",
+  		    	    	label: "app.lang.create",
+  		    	    	command: function(){
+  		    	    		var self = this;
+  		    	    		if(self.progressbar){
+  		    	    			self.progressbar.hide();
+  		    	    		}
+  		    	    		var path = self.collectionName + '/model';
+  		    	    		self.getApp().getRouter().navigate(path);
+  		    	    	}
+  		    	    },
+  					
+      	    	]
+      	    },
+      	 ],
+      	initFields: function(){
+    		var self = this;
+        	var schema = _.result(this, "modelSchema") || {};
+        	
+        	this.uiControl = this.uiControl || {};
+        	this.uiControl.$el = this.uiControl.$el || null;
+        	this.uiControl.fields = this.uiControl.fields || [];
+        	
+        	var fields_from_schema = [];
+        	_.each(schema, function(obj, key) {
+        		var field = {field: key};
+        		var viewfieldlst = $.grep(self.uiControl.fields, function(f){ return f.field === key; });
+        		if( !(viewfieldlst && (viewfieldlst.length == 1))){
+        			self.uiControl.fields.push(field);
+        		}
+        		//fields_from_schema.push(field);
+        	});
+        	
+        	var key = this.uiControl.fields.length;
+        	while (key--) {
+        		var field = this.uiControl.fields[key];
+        	    if((!isObject(field))|| (field.field === null) || ((field.field === undefined))){
+					self.fields.splice(key, 1);
+					continue;
+				}
+				var schema_field = schema[field.field];
+				
+				if(schema_field){
+					if(!field.required){
+						field.required = schema_field.required ? schema_field.required: false;
+					};
+					if(!field.label){
+						field.label = schema_field.label ? schema_field.label: field.field;
+					};
+					field.type = schema_field.type;
+					field.$el = field.$el || null;
+				}else{
+					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
+						self.uiControl.fields.splice(key, 1);
+					}
+				}
+        	}
+        	
+    		return this;
+	    },
+	    getCollectionElement: function(){
+	    	return this.uiControl.$el;
+	    },
 	});
 	
 	
 	Gonrin.ModelView = Gonrin.View.extend({
-		
 		initModel: function(){
 			var self = this;
 			if(!!this.model){
@@ -1840,7 +1834,60 @@
 			
 			return this;
 		},
-		
+		initFields: function(){
+    		var self = this;
+        	var schema = _.result(this, "modelSchema") || {};
+        	
+        	this.uiControl = this.uiControl || [];
+        	
+        	var fields_from_schema = [];
+        	_.each(schema, function(obj, key) {
+        		var field = {field: key};
+        		var viewfieldlst = $.grep(self.uiControl, function(f){ return f.field === key; });
+        		if( !(viewfieldlst && (viewfieldlst.length == 1))){
+        			self.uiControl.push(field);
+        		}
+        		
+        		//fields_from_schema.push(field);
+        	});
+        	
+        	var key = this.uiControl.length;
+        	while (key--) {
+        		var field = this.uiControl[key];
+        	    if((!isObject(field))|| (field.field === null) || ((field.field === undefined))){
+					self.fields.splice(key, 1);
+					continue;
+				}
+				var schema_field = schema[field.field];
+				
+				if(schema_field){
+					if(!field.required){
+						field.required = schema_field.required ? schema_field.required: false;
+					};
+					if(!field.label){
+						field.label = schema_field.label ? schema_field.label: field.field;
+					};
+					field.type = schema_field.type;
+					field.$el = field.$el || null;
+				}else{
+					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
+						self.uiControl.splice(key, 1);
+					}
+				}
+        	}
+        	
+    		return this;
+    	},
+    	getFieldElement: function(name){
+    		var self = this;
+    		for (var i = 0; i < self.uiControl.length; i++){
+    			var field = self.uiControl[i];
+    			if (field.field === name){
+    				return field.$el || null;
+    			}
+    		};
+    		return null;
+    	},
 		tools : [
     	    {
     	    	name: "defaultgr",
@@ -1857,8 +1904,8 @@
 							if(self.progressbar){
   		    	    			self.progressbar.hide();
   		    	    		}
-							Backbone.history.history.back();
-			                //self.getApp().getRouter().navigate(self.collectionName + "/collection");
+							//Backbone.history.history.back();
+			                self.getApp().getRouter().navigate(self.collectionName + "/collection");
 						}
 					},
 					{
