@@ -686,6 +686,7 @@
 	                    onRowClick:onRowClick,
 	                    language: this.view.getApp().lang
 	                });
+					this.view.collectionElement = $element;
 				},
 				set: function($element, collection, target) {
 					//gonrin Grid here
@@ -946,6 +947,8 @@
 							    case "boolean":
 							    	uicontrol = field.uicontrol || "textbox";
 							    	break;
+							    	
+							    //TODO: remove ref type
 							    case "ref":
 							    	//load entity
 							    	var reflink = _.result(model_schema, field.field) || {};
@@ -965,7 +968,7 @@
 						        	console.log("$ is not support " + uicontrol);
 								}else{
 									$element[uicontrol](field);
-									field.$el = $element;
+									field.fieldElement = $element;
 								}
 							}
 					        
@@ -1202,8 +1205,9 @@
 	var viewProps = ['schema', 'selectionMode', 'viewModel', 'viewData','filters','filterMode','orderBy','orderByMode','paginationMode', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
-		_is_gonrin_view:true,
+		//_is_gonrin_view:true,
 		_super: Backbone.View,
+		fields: [],
 		// Backbone.View constructor override:
 		// sets up binding controls around call to super.
 		constructor: function(options) {
@@ -1263,6 +1267,10 @@
 			}
 			return null;
 		},
+		collectionElement: null,
+	    getCollectionElement: function(){
+	    	return this.collectionElement;
+	    },
     	initFields: function(){
     		var self = this;
         	var schema = _.result(this, "modelSchema") || {};
@@ -1306,6 +1314,16 @@
         	}
         	
     		return this;
+    	},
+    	getFieldElement: function(name){
+    		var self = this;
+    		for (var i = 0; i < self.fields.length; i++){
+    			var field = self.fields[i];
+    			if (field.field === name){
+    				return field.fieldElement || null;
+    			}
+    		};
+    		return null;
     	},
     	_toolIsVisible : function(tool){
 			var self = this;
