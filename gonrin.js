@@ -60,6 +60,11 @@
 	var isModel = function(obj) { return obj instanceof Backbone.Model; };
 	var isCollection = function(obj) { return obj instanceof Backbone.Collection; };
 	var blankMethod = function() {};
+	
+	// Determine if `el` is a child of the document
+	Gonrin.isNodeAttached = function(el) {
+	    return Backbone.$.contains(document.documentElement, el);
+	};
 
 	// Static mixins API:
 	// added as a static member to Gonrin class objects (Model & View);
@@ -1197,6 +1202,7 @@
 			}
 			this.initProgressBar();
     		this.initToolbar();
+    		
 		},
 		// Bindings list accessor:
 		b: function() {
@@ -1217,6 +1223,16 @@
 		// Defines an optional hashtable of options to be passed to setter operations.
 		// Accepts a custom option '{save:true}' that will write to the model via ".save()".
 		setterOptions: null,
+		
+		destroy: function() {
+
+		    // COMPLETELY UNBIND THE VIEW
+		    this.undelegateEvents();
+		    this.$el.removeData().unbind();
+		    // Remove view from DOM
+		    this.remove();  
+		    Backbone.View.prototype.remove.call(this);
+		},
 		getApp: function(){
 			return gonrinApp();
 		},
@@ -1226,7 +1242,7 @@
 				var defaults = {};
 				_.each(this.modelSchema, function(props, key) {
 					if(isObject(props)){
-						defaults[key] = _.result(props, 'default') || null;
+						defaults[key] = props.hasOwnProperty('default') ? _.result(props, 'default') : null;
 						if ((defaults[key] === null) && (_.result(props, 'type') === "list")){
 							defaults[key] = [];
 						}
