@@ -980,7 +980,48 @@
 					var self = this;
 					var bind_attr = context['$bind_attribute'];
 					
-					if(bind_attr){
+					
+					if(bind_attr && (typeof bind_attr === "string")){
+						var fields = _.result(this.view,'uiControl') || [],
+							model_schema = _.result(this.view,'modelSchema') || {},
+							field = null;
+						
+						_.each(fields, function(iterfield, index){
+							if((!field) && (iterfield.field === bind_attr)){
+								field = iterfield;
+							}
+						});
+						if((field !== null) && (field.uicontrol !== false)){
+							var uicontrol = field.uicontrol || null;
+							console.log(uicontrol);
+							switch(uicontrol) {
+								case "ref":
+									console.log(field);
+							    	field.context = this.view;
+							        break;
+							    case "grid":
+							    	field.dataSource = this.view.model.get(bind_attr) ||[];
+							    	field.context = this.view;
+							        break;
+							    default:
+							}
+						
+							if(uicontrol !== null){
+								if ($.fn[uicontrol] === undefined) {
+						        	console.log("$ is not support " + uicontrol);
+								}else{
+									$element[uicontrol](field);
+									field.$el = $element;
+								}
+							}
+					        
+						};
+					
+					}
+					
+					
+					
+					/*if(bind_attr){
 						var fields = _.result(this.view,'fields') || [],
 							modelSchema = _.result(this.view,'modelSchema') || {},
 							field = null;
@@ -993,7 +1034,7 @@
 						var uicontrol = null;
 						switch(field.type) {
 							case "ref":
-								var reflink = _.result(modelSchema, field.field) || {}; 
+								//var reflink = _.result(modelSchema, field.field) || {}; 
 								uicontrol = field.uicontrol ||"ref";
 								if(uicontrol === "ref"){
 									field.context = this.view;
@@ -1009,7 +1050,7 @@
 							    	field.context = this.view;
 							    	//field.selectionMode = reflink["refHas"] === "many"? "multiple": "single";
 								};
-						    	//uicontrol = field.uicontrol ||"gonrinref";
+						    	
 						        break;
 								
 							default:
@@ -1023,7 +1064,7 @@
 							}
 						}
 						
-					};
+					};*/
 					
 				},
 				set: function($element, value) {
