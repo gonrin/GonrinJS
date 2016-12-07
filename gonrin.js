@@ -1777,7 +1777,7 @@
   		    	    	name: "create",
   		    	    	type: "button",
   		    	    	buttonClass: "btn-success btn-sm",
-  		    	    	label: "app.lang.create",
+  		    	    	label: "TRANSLATE:CREATE",
   		    	    	command: function(){
   		    	    		var self = this;
   		    	    		if(self.progressbar){
@@ -1925,7 +1925,7 @@
 						name: "back",
 						type: "button",
 						buttonClass: "btn-default btn-sm",
-						label: "app.lang.back",
+						label: "TRANSLATE:BACK",
 						command: function(){
 							var self = this;
 							if(self.progressbar){
@@ -1939,7 +1939,7 @@
 		    	    	name: "save",
 		    	    	type: "button",
 		    	    	buttonClass: "btn-success btn-sm",
-		    	    	label: "app.lang.save",
+		    	    	label: "TRANSLATE:SAVE",
 		    	    	command: function(){
 		    	    		var self = this;
 		    	    		if(self.progressbar){
@@ -1967,7 +1967,7 @@
 		    	    	name: "delete",
 		    	    	type: "button",
 		    	    	buttonClass: "btn-danger btn-sm",
-		    	    	label: "app.lang.delete",
+		    	    	label: "TRANSLATE:DELETE",
 		    	    	visible: function(){
 		    	    		return this.getApp().getRouter().getParam("id") !== null;
 		    	    	},
@@ -2032,8 +2032,8 @@
 			};
 		},
 		translate: function(str){
-			if( (!!str) && (str.startsWith('app.lang.'))){
-				var labelArr = str.split("app.lang.");
+			if( (!!str) && (str.startsWith('TRANSLATE:'))){
+				var labelArr = str.split("TRANSLATE:");
 				if(labelArr.length > 1){
 					return this.lang[labelArr[1]] || str;
 				}
