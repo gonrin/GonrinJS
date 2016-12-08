@@ -922,6 +922,8 @@
 						if((field !== null) && (field.uicontrol !== false)){
 							var uicontrol = null;
 							
+							field.value = value;
+							
 							switch(field.type) {
 							    case "string":
 							    	uicontrol = field.uicontrol || "textbox";
@@ -943,7 +945,6 @@
 							    default:
 							        
 							}
-							
 							if(uicontrol !== null){
 								if ($.fn[uicontrol] === undefined) {
 						        	console.log("$ is not support " + uicontrol);
