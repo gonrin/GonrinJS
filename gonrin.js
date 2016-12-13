@@ -677,7 +677,7 @@
 					this.view.uiControl.tableIdPrefix = this.view.cid;
 					
 					$element.grid(this.view.uiControl);
-					
+					//console.log(collection);
 					this.view.uiControl.$el = $element;
 				},
 				set: function($element, collection, target) {
@@ -941,6 +941,7 @@
 							    case "boolean":
 							    	uicontrol = field.uicontrol || "textbox";
 							    	break;
+							    //type list 
 							    	
 							    default:
 							        
@@ -980,8 +981,7 @@
 				post_init: function($element, value, context, bindings) {
 					var self = this;
 					var bind_attr = context['$bind_attribute'];
-					
-					
+					//console.log("make handler");
 					if(bind_attr && (typeof bind_attr === "string")){
 						var fields = _.result(this.view,'uiControl') || [],
 							model_schema = _.result(this.view,'modelSchema') || {},
@@ -992,13 +992,16 @@
 								field = iterfield;
 							}
 						});
+						
 						if((field !== null) && (field.uicontrol !== false)){
 							var uicontrol = field.uicontrol || null;
-							console.log(uicontrol);
+							
 							switch(uicontrol) {
 								case "ref":
-									console.log(field);
 							    	field.context = this.view;
+							    	if((!!value) && $.isArray(value) && (value.length >0)){
+							    		field.selectedItems = value;
+							    	}
 							        break;
 							    case "grid":
 							    	field.dataSource = this.view.model.get(bind_attr) ||[];
@@ -1840,6 +1843,9 @@
 	    getCollectionElement: function(){
 	    	return this.uiControl.$el;
 	    },
+	    setSelectedItems:function(items){
+	    	this.uiControl.selectedItems = items;
+	    }
 	});
 	
 	
