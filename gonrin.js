@@ -1245,7 +1245,7 @@
 				this.$el.html(this.template);
 				//this.applyBindings();
 			}
-			this.initProgressBar();
+			//this.initProgressBar();
     		this.initToolbar();
     		
 		},
@@ -1354,7 +1354,7 @@
 				this.initToolbar(tools);
 			}
 		},
-		initProgressBar: function(){
+		/*initProgressBar: function(){
 			var self = this;
 	
 			var progressbarhtml = '<div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">';
@@ -1369,7 +1369,7 @@
 				self.progressbar.css("visibility","hidden");
 			};
 			return this;
-		},
+		},*/
 		render: function(){ return this },
     	
 		// Compiles a model context, then applies bindings to the view:
