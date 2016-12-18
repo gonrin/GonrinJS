@@ -2001,6 +2001,15 @@
     	],
 	});
 	
+	
+	//Gonrin.Session: save user variables. Clear on logout or new login.
+	// May be serialize on storejs.
+	var Session = Gonrin.Session = function(attributes){
+		var self = this;
+		this.cid = _.uniqueId('session');
+		
+	}
+	
 	// Gonrin.Application
 	// ----------
 	var appMap;
@@ -2161,6 +2170,26 @@
 	Gonrin.DialogView = Gonrin.CollectionView.extend({
     	tools : null,
     	$dialog: null,
+    	tools : [
+ 	    	    {
+ 	    	    	name: "defaultgr",
+ 	    	    	type: "group",
+ 	    	    	groupClass: "toolbar-group",
+ 	    	    	buttons: [
+ 						{
+ 			    	    	name: "select",
+ 			    	    	type: "button",
+ 			    	    	buttonClass: "btn-success btn-sm",
+ 			    	    	label: "TRANSLATE:SELECT",
+ 			    	    	command: function(){
+ 			    	    		var self = this;
+ 			    	    		self.trigger("onSelected");
+ 			    	    		self.close();
+ 			    	    	}
+ 			    	    },
+ 	    	    	]
+ 	    	    },
+ 	    	],
     	
     	//TODO: remove initModel. Tim cach tinh toan ra TextValue de in, Khong phai len server lay lan nua.
     	initModel: function(){
