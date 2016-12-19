@@ -2023,7 +2023,7 @@
 		this.session = {token:null, expired:null};
 		this.permission = null;
 		this.currentUser = null;
-		this._g = {};
+		this._data = {};
 		this.registerApp();
 	};
 	// Set up inheritance for the app
@@ -2046,6 +2046,28 @@
 			window.gonrinApp = function () {
 			    return window._gonrinApp;
 			};
+		},
+		data: function(key, value){
+			var self = this;
+			
+			//return all data
+			if ( key === undefined ) {
+				return this._data;
+			}
+			if ( (typeof key === "string") && (value === undefined )) {
+				return self._data.hasOwnProperty(key) ? self._data[key] : null;
+			}
+			
+			// Sets multiple values
+			if ( typeof key === "object" ) {
+				$.each(key, function(k,val){
+					self._data[k] = val;
+				});
+			}
+			
+			if ( (typeof key === "string") && (value !== undefined )) {
+				self._data[key] = value;
+			}
 		},
 		translate: function(str){
 			if( (!!str) && (str.startsWith('TRANSLATE:'))){
