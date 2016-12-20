@@ -2004,7 +2004,7 @@
 	
 	//Gonrin.User: 
 	var userMap;
-	var userProps = ['id', 'name', 'email', 'first_name', 'last_name', 'active', 'roles', 'gender', 'birthday', 'phone', 'data'];
+	var userProps = ['id', 'name', 'email', 'first_name', 'last_name', 'active', 'roles', 'gender', 'birthday', 'phone', 'info'];
 	var User = Gonrin.User = function(attributes){
 		var self = this;
 		this.cid = _.uniqueId('user');
