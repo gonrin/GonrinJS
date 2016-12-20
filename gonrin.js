@@ -2002,13 +2002,39 @@
 	});
 	
 	
-	//Gonrin.Session: save user variables. Clear on logout or new login.
-	// May be serialize on storejs.
-	var Session = Gonrin.Session = function(attributes){
+	//Gonrin.User: 
+	var userMap;
+	var userProps = ['id', 'name', 'email', 'first_name', 'last_name', 'active', 'roles', 'gender', 'birthday', 'phone', 'data'];
+	var User = Gonrin.User = function(attributes){
 		var self = this;
-		this.cid = _.uniqueId('session');
+		this.cid = _.uniqueId('user');
+		_.extend(this, _.pick(attributes||{}, userProps));
+		this._data = {};
 		
 	}
+	User.extend = extend;
+	_.extend(Gonrin.User.prototype, Backbone.Events, {
+		initialize: blankMethod,
+		hasRole: function(role){
+			if((this.roles != null) && (this.roles.length > 0)){
+				for(var i = 0; i < this.roles.length; i ++){
+					if (typeof role === "string") {
+						if (role === this.roles[i].name){
+							return true;
+						}
+					}
+					if ( typeof role === "object" ) {
+						if (_.isEqual(role, this.roles[i])){
+							return true;
+						}
+						
+					}
+				}
+			}
+			return false;
+		},
+		
+	});
 	
 	// Gonrin.Application
 	// ----------
