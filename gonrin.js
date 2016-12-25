@@ -981,6 +981,7 @@
 				post_init: function($element, value, context, bindings) {
 					var self = this;
 					var bind_attr = context['$bind_attribute'];
+					var thisview = this.view;
 					//console.log("make handler");
 					if(bind_attr && (typeof bind_attr === "string")){
 						var fields = _.result(this.view,'uiControl') || [],
@@ -993,29 +994,80 @@
 							}
 						});
 						
-						if((field !== null) && (field.uicontrol !== false)){
-							var uicontrol = field.uicontrol || null;
+						if(field !== null){
+							var uicontrol = field.uicontrol || false;
+							var itemView = field.itemView || false;
+							var fieldname = field.field;
 							
-							switch(uicontrol) {
-								case "ref":
-							    	field.context = this.view;
-							    	if((!!value) && $.isArray(value) && (value.length >0)){
-							    		field.selectedItems = value;
-							    	}
-							        break;
-							    case "grid":
-							    	field.dataSource = this.view.model.get(bind_attr) ||[];
-							    	field.context = this.view;
-							        break;
-							    default:
-							}
-						
-							if(uicontrol !== null){
+							if(uicontrol !== false){
+								switch(uicontrol) {
+									case "ref":
+								    	field.context = this.view;
+								    	if((!!value) && $.isArray(value) && (value.length >0)){
+								    		field.selectedItems = value;
+								    	}
+								        break;
+								    case "grid":
+								    	field.dataSource = this.view.model.get(bind_attr) ||[];
+								    	field.context = this.view;
+								        break;
+								    default:
+								}
+								
 								if ($.fn[uicontrol] === undefined) {
 						        	console.log("$ is not support " + uicontrol);
 								}else{
 									$element[uicontrol](field);
 									field.$el = $element;
+								}
+							}else if(itemView !== false){
+								//render itemview. can be rerender.
+								//render tools
+								var tools = field.tools || [];
+								var primaryField = field.primaryField;
+								//end render tools
+								//luu vao 1 bang map cac view Con de bat cac event va item object trong list
+								if($.isArray(value)){
+									$element.empty();
+									for(var idx = 0; idx < value.length; idx++){
+									//_.each(value, function(itemobj, idx){
+										var view = new itemView();
+										view.model.set(value[idx]);
+										view.render();
+						        		$element.append(view.$el);
+						        		
+						        		view.on('itemDeleted', function(evtobj){
+						    				for(var j = 0 ; j < value.length; j++)
+							   	           	{
+						    					if(_.isEqual(value[j], evtobj.data)){
+							   	           			 value.splice(j, 1);
+							   	           			 //thisview.model.trigger("change:" + field.field);
+							   	           			 break;
+							   	           		 }
+							   	           	}
+						    			});
+						        		view.on('itemChanged', function(evtobj){
+						        			var filemodel = thisview.model.get(field.field);
+						    				for(var j = 0 ; j < filemodel.length; j++)
+							   	           	{
+						    					if(_.isEqual(filemodel[j], evtobj.oldData)){
+						    						filemodel[j] = evtobj.data;
+						    						 //thisview.model.trigger("change:" + field.field);
+							   	           			 break;
+							   	           		 }
+							   	           	}
+						    			});
+						        		thisview.model.on("change:" + field.field, function(){
+						        			//reload change:
+						        			//dong bo view
+						        			
+						        			Backbone.history.loadUrl(Backbone.history.fragment);
+						        			/*var fieldvalue = thisview.model.get(field.field);
+						        			console.log(thisview.model.previous(field.field));
+						        			console.log(fieldvalue);*/
+						        			
+						        		});
+									};
 								}
 							}
 					        
@@ -1024,73 +1076,29 @@
 					}
 					
 					
-					
-					/*if(bind_attr){
-						var fields = _.result(this.view,'fields') || [],
-							modelSchema = _.result(this.view,'modelSchema') || {},
-							field = null;
-							
-						_.each(fields, function(iterfield, index){
-							if((!field) && (iterfield.field === bind_attr)){
-								field = iterfield;
-							}
-						});
-						var uicontrol = null;
-						switch(field.type) {
-							case "ref":
-								//var reflink = _.result(modelSchema, field.field) || {}; 
-								uicontrol = field.uicontrol ||"ref";
-								if(uicontrol === "ref"){
-									field.context = this.view;
-									//field.textField = reflink["refTextField"] || null;
-							    	//field.valueField = reflink["refValueField"] || null;
-							    	//field.dataSource = reflink["$ref"];
-							    	//field.selectionMode = reflink["refHas"] === "many"? "multiple": "single";
-								
-								};
-								
-								if(uicontrol === "grid"){
-							    	field.dataSource = this.view.model.get(bind_attr) ||[];
-							    	field.context = this.view;
-							    	//field.selectionMode = reflink["refHas"] === "many"? "multiple": "single";
-								};
-						    	
-						        break;
-								
-							default:
-								
-						}
-						if(uicontrol !== null){
-							if ($.fn[uicontrol] === undefined) {
-					        	console.log("$ is not support " + uicontrol);
-							}else{
-								$element[uicontrol](field);
-							}
-						}
-						
-					};*/
-					
 				},
 				set: function($element, value) {
-					try {
-						if ($element.val() + '' != value + '') $element.val(JSON.stringify(value));
-					} catch (error) {
+					console.log("bind list set");
+					//try {
+					//	if ($element.val() + '' != value + '') $element.val(JSON.stringify(value));
+					//} catch (error) {
 						// Error setting value: IGNORE.
 						// This occurs in IE6 while attempting to set an undefined multi-select option.
 						// unfortuantely, jQuery doesn't gracefully handle this error for us.
 						// remove this try/catch block when IE6 is officially deprecated.
-					}
+					//}
 				},
 				get: function($element) {
-					try {
-						return $.parseJSON( $element.val() );
-					} catch (error) {
+					console.log("bind list get");
+					//try {
+					//	return $.parseJSON( $element.val() );
+					//} catch (error) {
 						// Error setting value: IGNORE.
 						// This occurs in IE6 while attempting to set an undefined multi-select option.
 						// unfortuantely, jQuery doesn't gracefully handle this error for us.
 						// remove this try/catch block when IE6 is officially deprecated.
-					}
-					return null;
+					//}
+					//return null;
 				}
 			})
 	};
@@ -1223,7 +1231,18 @@
 			}
 	};
 
-
+	Gonrin.getDefaultModel = function(schema){
+		var defaults = {};
+    	_.each(schema, function(props, key) {
+    		if(isObject(props)){
+				defaults[key] = props.hasOwnProperty('default') ? _.result(props, 'default') : null;
+				if ((defaults[key] === null) && (_.result(props, 'type') === "list")){
+					defaults[key] = [];
+				}
+			}
+    	});
+    	return defaults;
+	}
 	// Gonrin.View
 	// ----------
 	var viewMap;
@@ -1245,9 +1264,8 @@
 				this.$el.html(this.template);
 				//this.applyBindings();
 			}
-			//this.initProgressBar();
     		this.initToolbar();
-    		
+    		this.bindEvents();
 		},
 		// Bindings list accessor:
 		b: function() {
@@ -1282,9 +1300,11 @@
 			return gonrinApp();
 		},
 		initModel: function(){ return this },
+		bindEvents: function(){ return this },
 		getDefaultModel: function(){
 			if(this.modelSchema){
-				var defaults = {};
+				return Gonrin.getDefaultModel(this.modelSchema);
+				/*var defaults = {};
 				_.each(this.modelSchema, function(props, key) {
 					if(isObject(props)){
 						defaults[key] = props.hasOwnProperty('default') ? _.result(props, 'default') : null;
@@ -1293,7 +1313,7 @@
 						}
 					}
 				});
-				return defaults;
+				return defaults;*/
 			}
 			return null;
 		},
@@ -1354,22 +1374,7 @@
 				this.initToolbar(tools);
 			}
 		},
-		/*initProgressBar: function(){
-			var self = this;
-	
-			var progressbarhtml = '<div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">';
-			progressbarhtml += '<span class="sr-only"></span>';
-			progressbarhtml += '</div>';
-			this.progressbar = $('<div/>').addClass("progress").css({"height":"4px", "visibility":"hidden", "margin-bottom": "20px"}).html(progressbarhtml);
-
-			this.progressbar.show = function(percent){
-				self.progressbar.css("visibility","visible");
-			};
-			this.progressbar.hide = function(){
-				self.progressbar.css("visibility","hidden");
-			};
-			return this;
-		},*/
+		
 		render: function(){ return this },
     	
 		// Compiles a model context, then applies bindings to the view:
@@ -2000,6 +2005,41 @@
     	    },
     	],
 	});
+	
+	Gonrin.ListItemView = Gonrin.ModelView.extend({
+		parentView: null,
+		//referenceAttribute:null,
+		
+		bindEvents : function(){
+			//trigger chante
+			var self = this;
+			this.model.on('change', function()
+			{
+				self.trigger('itemChanged', {
+					itemId: self.model.get(self.model.idAttribute),
+					data: self.model.toJSON(),
+					oldData: self.model.previousAttributes()
+				});
+			});
+			return this;
+		},
+    	remove: function(){
+    		var self = this;
+    		self.trigger('itemDeleted', {
+				itemId: self.model.get(self.model.idAttribute),
+				data: self.model.toJSON()
+			});
+    		//self.model.destroy();
+			// COMPLETELY UNBIND THE VIEW
+    		
+			self.undelegateEvents();
+			self.$el.removeData().unbind();
+		    // Remove view from DOM
+			self.remove();  
+			self.$el.remove();
+		    Backbone.View.prototype.remove.call(self);
+    	}
+    });
 	
 	
 	//Gonrin.User: 
