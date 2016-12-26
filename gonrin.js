@@ -1029,6 +1029,9 @@
 								//luu vao 1 bang map cac view Con de bat cac event va item object trong list
 								if($.isArray(value)){
 									$element.empty();
+									//realease other view
+									console.log("befor render");
+									
 									for(var idx = 0; idx < value.length; idx++){
 									//_.each(value, function(itemobj, idx){
 										var view = new itemView();
@@ -1041,7 +1044,6 @@
 							   	           	{
 						    					if(_.isEqual(value[j], evtobj.data)){
 							   	           			 value.splice(j, 1);
-							   	           			 //thisview.model.trigger("change:" + field.field);
 							   	           			 break;
 							   	           		 }
 							   	           	}
@@ -1057,17 +1059,17 @@
 							   	           		 }
 							   	           	}
 						    			});
-						        		thisview.model.on("change:" + field.field, function(){
+						        		/*thisview.model.on("change:" + field.field, function(){
 						        			//reload change:
 						        			//dong bo view
+						        			//Backbone.history.loadUrl(Backbone.history.fragment);
+						        			//var fieldvalue = thisview.model.get(field.field);
+						        			//console.log(thisview.model.previous(field.field));
+						        			//console.log(fieldvalue);
 						        			
-						        			Backbone.history.loadUrl(Backbone.history.fragment);
-						        			/*var fieldvalue = thisview.model.get(field.field);
-						        			console.log(thisview.model.previous(field.field));
-						        			console.log(fieldvalue);*/
-						        			
-						        		});
+						        		});*/
 									};
+									console.log("after render");
 								}
 							}
 					        
