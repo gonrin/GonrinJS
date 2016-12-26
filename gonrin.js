@@ -1028,7 +1028,7 @@
 								//end render tools
 								//luu vao 1 bang map cac view Con de bat cac event va item object trong list
 								if($.isArray(value)){
-									$element.empty();
+									//$element.empty();
 									//realease other view
 									
 									for(var idx = 0; idx < value.length; idx++){
