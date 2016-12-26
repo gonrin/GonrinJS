@@ -1030,7 +1030,6 @@
 								if($.isArray(value)){
 									$element.empty();
 									//realease other view
-									console.log("befor render");
 									
 									for(var idx = 0; idx < value.length; idx++){
 									//_.each(value, function(itemobj, idx){
@@ -1069,7 +1068,6 @@
 						        			
 						        		});*/
 									};
-									console.log("after render");
 								}
 							}
 					        
