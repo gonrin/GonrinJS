@@ -1764,7 +1764,8 @@
 	Gonrin.CollectionView = Gonrin.View.extend({
 		initModel: function(){
         	this.collection = new Gonrin.Collection(Gonrin.Model);
-        	this.collection.url = this.urlPrefix + this.collectionName;
+        	var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
+        	this.collection.url = serviceURL + this.urlPrefix + this.collectionName;
 	    },
 	    //filters: null,
 	    tools: [
@@ -1848,6 +1849,7 @@
 	Gonrin.ModelView = Gonrin.View.extend({
 		initModel: function(){
 			var self = this;
+			
 			if(!!this.model){
 				return this;
 			}
@@ -1865,7 +1867,8 @@
 				this.model.view = this;
 			}
 			if(this.model.urlRoot == null){
-				this.model.urlRoot = this.urlPrefix + this.collectionName;
+				var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
+				this.model.urlRoot = serviceURL + this.urlPrefix + this.collectionName;
 			}
 			return this;
 		},
@@ -2075,7 +2078,7 @@
 	// Gonrin.Application
 	// ----------
 	var appMap;
-	var appProps = ['router', 'lang', 'layout', 'block', 'postLogin'];
+	var appProps = ['serviceURL', 'router', 'lang', 'layout', 'block', 'postLogin'];
 	var Application = Gonrin.Application = function(attributes){
 		var self = this;
 		this.cid = _.uniqueId('app');
@@ -2085,6 +2088,7 @@
 		this.session = {token:null, expired:null};
 		this.permission = null;
 		this.currentUser = null;
+		this.serviceURL = this.serviceURL || null;
 		this._data = {};
 		this.registerApp();
 	};
@@ -2278,7 +2282,8 @@
     	//TODO: remove initModel. Tim cach tinh toan ra TextValue de in, Khong phai len server lay lan nua.
     	initModel: function(){
 	       	this.collection = new Gonrin.Collection(Gonrin.Model);
-	      	this.collection.url = this.urlPrefix + this.collectionName;
+	       	var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
+	      	this.collection.url = serviceURL + this.urlPrefix + this.collectionName;
 	        	
 			if(this.modelSchema){
 				var def = this.getDefaultModel();
