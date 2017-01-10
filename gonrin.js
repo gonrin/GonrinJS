@@ -96,7 +96,7 @@
 	Gonrin.Events = Backbone.Events;
 
 	var modelMap;
-	var modelProps = ['computeds'];
+	var modelProps = ['computeds', 'view'];
 
 	Gonrin.Model = Backbone.Model.extend({
 		_super: Backbone.Model,
@@ -107,6 +107,7 @@
 			_super(this, 'constructor', arguments);
 			this.initComputeds(attributes, options);
 		},
+		view: null,
 
 		// Gets a copy of a model attribute value:
 		// Array and Object values will return a shallow copy,
@@ -1024,8 +1025,16 @@
 								//render itemview. can be rerender.
 								//render tools
 								var tools = field.tools || [];
-								var primaryField = field.primaryField;
 								//end render tools
+								var primaryField = field.primaryField;
+								
+								
+								
+								var viewData = null;
+								if(field.hasOwnProperty("viewData")){
+									viewData =  isFunction(field["viewData"]) ? field["viewData"].call(thisview): field["viewData"];
+								}
+								
 								//luu vao 1 bang map cac view Con de bat cac event va item object trong list
 								if($.isArray(value)){
 									//$element.empty();
@@ -1033,7 +1042,7 @@
 									
 									for(var idx = 0; idx < value.length; idx++){
 									//_.each(value, function(itemobj, idx){
-										var view = new itemView();
+										var view = new itemView({parentView: thisview, viewData: viewData});
 										view.model.set(value[idx]);
 										view.render();
 						        		$element.append(view.$el);
@@ -1048,25 +1057,16 @@
 							   	           	}
 						    			});
 						        		view.on('itemChanged', function(evtobj){
-						        			var filemodel = thisview.model.get(field.field);
-						    				for(var j = 0 ; j < filemodel.length; j++)
+						        			var fieldmodel = thisview.model.get(field.field);
+						        			
+						    				for(var j = 0 ; j < fieldmodel.length; j++)
 							   	           	{
-						    					if(_.isEqual(filemodel[j], evtobj.oldData)){
-						    						filemodel[j] = evtobj.data;
-						    						 //thisview.model.trigger("change:" + field.field);
+						    					if(_.isEqual(fieldmodel[j], evtobj.oldData)){
+						    						fieldmodel[j] = evtobj.data;
 							   	           			 break;
 							   	           		 }
 							   	           	}
 						    			});
-						        		/*thisview.model.on("change:" + field.field, function(){
-						        			//reload change:
-						        			//dong bo view
-						        			//Backbone.history.loadUrl(Backbone.history.fragment);
-						        			//var fieldvalue = thisview.model.get(field.field);
-						        			//console.log(thisview.model.previous(field.field));
-						        			//console.log(fieldvalue);
-						        			
-						        		});*/
 									};
 								}
 							}
@@ -1246,7 +1246,7 @@
 	// Gonrin.View
 	// ----------
 	var viewMap;
-	var viewProps = ['schema', 'viewModel', 'viewData', 'uiControl', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
+	var viewProps = ['schema', 'modelClass', 'parentView', 'viewModel', 'viewData', 'uiControl', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
 		_super: Backbone.View,
@@ -1304,16 +1304,6 @@
 		getDefaultModel: function(){
 			if(this.modelSchema){
 				return Gonrin.getDefaultModel(this.modelSchema);
-				/*var defaults = {};
-				_.each(this.modelSchema, function(props, key) {
-					if(isObject(props)){
-						defaults[key] = props.hasOwnProperty('default') ? _.result(props, 'default') : null;
-						if ((defaults[key] === null) && (_.result(props, 'type') === "list")){
-							defaults[key] = [];
-						}
-					}
-				});
-				return defaults;*/
 			}
 			return null;
 		},
@@ -1726,7 +1716,8 @@
 				self.listenTo(triggers[i][0], triggers[i][1], reset);
 			}
 		}
-		self.post_init(self.$el, readAccessor(accessor), context, bindings)
+		//
+		self.post_init(self.$el, readAccessor(accessor), context, bindings);
 	}
 
 	_.extend(GonrinBinding.prototype, Backbone.Events, {
@@ -1860,17 +1851,22 @@
 			if(!!this.model){
 				return this;
 			}
-			if(this.modelSchema){
-				var def = this.getDefaultModel();
-				
-				if(def){
+			var def = this.getDefaultModel() || {};
+			if(this.modelClass){
+				this.model = new this.modelClass(def,{view: self});
+			}
+			else if(this.modelSchema){
+				this.model = new Gonrin.Model(def,{view: self});
+				/*if(def){
 					this.model = new Gonrin.Model(def);
 				}else{
 					this.model = new Gonrin.Model();
-				}
-	        	this.model.urlRoot = this.urlPrefix + this.collectionName;
+				}*/
+				this.model.view = this;
 			}
-			
+			if(this.model.urlRoot == null){
+				this.model.urlRoot = this.urlPrefix + this.collectionName;
+			}
 			return this;
 		},
 		initFields: function(){
