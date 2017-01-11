@@ -977,13 +977,64 @@
 					}
 				}
 			}),
-			
+			dict: makeHandler({
+				post_init: function($element, value, context, bindings) {
+					var self = this;
+					var bind_attr = context['$bind_attribute'];
+					var thisview = this.view;
+					if(bind_attr && (typeof bind_attr === "string")){
+						var fields = _.result(this.view,'uiControl') || [],
+						model_schema = _.result(this.view,'modelSchema') || {},
+						field = null;
+					
+						_.each(fields, function(iterfield, index){
+							if((!field) && (iterfield.field === bind_attr)){
+								field = iterfield;
+							}
+						});
+						if(field !== null){
+							console.log(field);
+							var uicontrol = field.uicontrol || false;
+							var itemView = field.itemView || false;
+							var fieldname = field.field;
+							
+							if(itemView !== false){
+								
+							}else if(uicontrol !== false){
+								switch(uicontrol) {
+									case "ref":
+								    	field.context = this.view;
+								    	if((!!value) && $.isArray(value) && (value.length >0)){
+								    		field.selectedItems = value;
+								    	}
+								        break;
+								    default:
+								}
+								
+								if ($.fn[uicontrol] === undefined) {
+						        	console.log("$ is not support " + uicontrol);
+								}else{
+									$element[uicontrol](field);
+									field.$el = $element;
+								}
+							}
+								
+						}
+					}
+				},
+				set: function($element, value) {
+					
+				},
+				get: function($element) {
+					//return null;
+				}
+			}),
 			list: makeHandler({
 				post_init: function($element, value, context, bindings) {
 					var self = this;
 					var bind_attr = context['$bind_attribute'];
 					var thisview = this.view;
-					//console.log("make handler");
+					
 					if(bind_attr && (typeof bind_attr === "string")){
 						var fields = _.result(this.view,'uiControl') || [],
 							model_schema = _.result(this.view,'modelSchema') || {},
@@ -1000,35 +1051,11 @@
 							var itemView = field.itemView || false;
 							var fieldname = field.field;
 							
-							if(uicontrol !== false){
-								switch(uicontrol) {
-									case "ref":
-								    	field.context = this.view;
-								    	if((!!value) && $.isArray(value) && (value.length >0)){
-								    		field.selectedItems = value;
-								    	}
-								        break;
-								    case "grid":
-								    	field.dataSource = this.view.model.get(bind_attr) ||[];
-								    	field.context = this.view;
-								        break;
-								    default:
-								}
-								
-								if ($.fn[uicontrol] === undefined) {
-						        	console.log("$ is not support " + uicontrol);
-								}else{
-									$element[uicontrol](field);
-									field.$el = $element;
-								}
-							}else if(itemView !== false){
-								//render itemview. can be rerender.
+							if(itemView !== false){
 								//render tools
 								var tools = field.tools || [];
 								//end render tools
 								var primaryField = field.primaryField;
-								
-								
 								
 								var viewData = null;
 								if(field.hasOwnProperty("viewData")){
@@ -1037,11 +1064,9 @@
 								
 								//luu vao 1 bang map cac view Con de bat cac event va item object trong list
 								if($.isArray(value)){
-									//$element.empty();
 									//realease other view
 									
 									for(var idx = 0; idx < value.length; idx++){
-									//_.each(value, function(itemobj, idx){
 										var view = new itemView({parentView: thisview, viewData: viewData});
 										view.model.set(value[idx]);
 										view.render();
@@ -1069,6 +1094,27 @@
 						    			});
 									};
 								}
+							}else if(uicontrol !== false){
+								switch(uicontrol) {
+									case "ref":
+								    	field.context = this.view;
+								    	if((!!value) && $.isArray(value) && (value.length >0)){
+								    		field.selectedItems = value;
+								    	}
+								        break;
+								    case "grid":
+								    	field.dataSource = this.view.model.get(bind_attr) ||[];
+								    	field.context = this.view;
+								        break;
+								    default:
+								}
+								
+								if ($.fn[uicontrol] === undefined) {
+						        	console.log("$ is not support " + uicontrol);
+								}else{
+									$element[uicontrol](field);
+									field.$el = $element;
+								}
 							}
 					        
 						};
@@ -1078,26 +1124,9 @@
 					
 				},
 				set: function($element, value) {
-					console.log("bind list set");
-					//try {
-					//	if ($element.val() + '' != value + '') $element.val(JSON.stringify(value));
-					//} catch (error) {
-						// Error setting value: IGNORE.
-						// This occurs in IE6 while attempting to set an undefined multi-select option.
-						// unfortuantely, jQuery doesn't gracefully handle this error for us.
-						// remove this try/catch block when IE6 is officially deprecated.
-					//}
+					
 				},
 				get: function($element) {
-					console.log("bind list get");
-					//try {
-					//	return $.parseJSON( $element.val() );
-					//} catch (error) {
-						// Error setting value: IGNORE.
-						// This occurs in IE6 while attempting to set an undefined multi-select option.
-						// unfortuantely, jQuery doesn't gracefully handle this error for us.
-						// remove this try/catch block when IE6 is officially deprecated.
-					//}
 					//return null;
 				}
 			})
@@ -1239,6 +1268,9 @@
 				if ((defaults[key] === null) && (_.result(props, 'type') === "list")){
 					defaults[key] = [];
 				}
+				/*if ((defaults[key] === null) && (_.result(props, 'type') === "dict")){
+					defaults[key] = {};
+				}*/
 			}
     	});
     	return defaults;
@@ -1298,6 +1330,9 @@
 		},
 		getApp: function(){
 			return gonrinApp();
+		},
+		getServiceURL: function(){
+			return gonrinApp().serviceURL;
 		},
 		initModel: function(){ return this },
 		bindEvents: function(){ return this },
