@@ -1004,8 +1004,9 @@
 								switch(uicontrol) {
 									case "ref":
 								    	field.context = this.view;
-								    	if((!!value) && $.isArray(value) && (value.length >0)){
-								    		field.selectedItems = value;
+								    	field.selectedItems = field.selectedItems || [];
+								    	if(!!value){
+								    		field.selectedItems.push(value);
 								    	}
 								        break;
 								    default:
@@ -1023,10 +1024,28 @@
 					}
 				},
 				set: function($element, value) {
-					
+					try {
+						if ($element.val() + '' != value + '') $element.val(JSON.stringify(value));
+					} catch (error) {
+						// Error setting value: IGNORE.
+						// This occurs in IE6 while attempting to set an undefined multi-select option.
+						// unfortuantely, jQuery doesn't gracefully handle this error for us.
+						// remove this try/catch block when IE6 is officially deprecated.
+					}
 				},
 				get: function($element) {
-					//return null;
+					if( (!!$element.data('gonrin'))&& !!($element.data('gonrin').getValue)){
+						return $element.data('gonrin').getValue();
+					}
+					try {
+						return $.parseJSON( $element.val() );
+					} catch (error) {
+						// Error setting value: IGNORE.
+						// This occurs in IE6 while attempting to set an undefined multi-select option.
+						// unfortuantely, jQuery doesn't gracefully handle this error for us.
+						// remove this try/catch block when IE6 is officially deprecated.
+					}
+					return null;
 				}
 			}),
 			list: makeHandler({
@@ -1124,10 +1143,18 @@
 					
 				},
 				set: function($element, value) {
-					
+					try {
+						if ($element.val() + '' != value + '') $element.val(JSON.stringify(value));
+					} catch (error) {}
 				},
 				get: function($element) {
-					//return null;
+					if( (!!$element.data('gonrin'))&& !!($element.data('gonrin').getValue)){
+						return $element.data('gonrin').getValue();
+					}
+					try {
+						return $.parseJSON( $element.val() );
+					} catch (error) {}
+					return null;
 				}
 			})
 	};
@@ -1593,16 +1620,17 @@
 		if (!isUndefined(value)) {
 
 			// Set Object (non-null, non-array) hashtable value:
-			if (!isObject(value) || isArray(value) || _.isDate(value)) {
+			//if (!isObject(value) || isArray(value) || _.isDate(value)) {
 				var val = value;
 				value = {};
 				value[attribute] = val;
-			}
-
+			//}
+			
 			// Set value:
 			return options && options.save ? source.save(value, options) : source.set(value, options);
+			return;
 		}
-
+		
 		// Get the attribute value by default:
 		return source.get(attribute);
 	}
