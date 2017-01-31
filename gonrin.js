@@ -96,7 +96,7 @@
 	Gonrin.Events = Backbone.Events;
 
 	var modelMap;
-	var modelProps = ['computeds', 'view'];
+	var modelProps = ['computeds', 'modelData'];
 
 	Gonrin.Model = Backbone.Model.extend({
 		_super: Backbone.Model,
@@ -107,7 +107,7 @@
 			_super(this, 'constructor', arguments);
 			this.initComputeds(attributes, options);
 		},
-		view: null,
+		modelData: {},
 
 		// Gets a copy of a model attribute value:
 		// Array and Object values will return a shallow copy,
@@ -993,7 +993,6 @@
 							}
 						});
 						if(field !== null){
-							console.log(field);
 							var uicontrol = field.uicontrol || false;
 							var itemView = field.itemView || false;
 							var fieldname = field.field;
@@ -1071,48 +1070,48 @@
 							var fieldname = field.field;
 							
 							if(itemView !== false){
-								//render tools
-								var tools = field.tools || [];
-								//end render tools
-								var primaryField = field.primaryField;
 								
 								var viewData = null;
+								var modelData = null;
 								if(field.hasOwnProperty("viewData")){
 									viewData =  isFunction(field["viewData"]) ? field["viewData"].call(thisview): field["viewData"];
 								}
-								
-								//luu vao 1 bang map cac view Con de bat cac event va item object trong list
-								if($.isArray(value)){
-									//realease other view
-									
-									for(var idx = 0; idx < value.length; idx++){
-										var view = new itemView({parentView: thisview, viewData: viewData});
-										view.model.set(value[idx]);
-										view.render();
-						        		$element.append(view.$el);
-						        		
-						        		view.on('itemDeleted', function(evtobj){
-						    				for(var j = 0 ; j < value.length; j++)
-							   	           	{
-						    					if(_.isEqual(value[j], evtobj.data)){
-							   	           			 value.splice(j, 1);
-							   	           			 break;
-							   	           		 }
-							   	           	}
-						    			});
-						        		view.on('itemChanged', function(evtobj){
-						        			var fieldmodel = thisview.model.get(field.field);
-						        			
-						    				for(var j = 0 ; j < fieldmodel.length; j++)
-							   	           	{
-						    					if(_.isEqual(fieldmodel[j], evtobj.oldData)){
-						    						fieldmodel[j] = evtobj.data;
-							   	           			 break;
-							   	           		 }
-							   	           	}
-						    			});
-									};
+								if(field.hasOwnProperty("modelData")){
+									modelData =  isFunction(field["modelData"]) ? field["modelData"].call(thisview): field["modelData"];
 								}
+								
+								//render tools
+								var tools = field.tools || [];
+								var toolEl = field.toolEl;
+								var $toolEl = thisview.$el.find(toolEl);
+								
+								if((!!$toolEl) && ($.isArray(tools))){
+									$.each(tools, function(iter, button){
+										//var button = null;
+										var label = thisview.getApp().translate(button.label) || button.name;
+										if((button.type === "button") && thisview._toolIsVisible(button)){
+											var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(label);
+											$tool.addClass(button.buttonClass || "btn-default");
+											$toolEl.append($tool);
+											if (button.command === "create"){
+												$tool.bind("click", function(){
+													var fieldmodel = thisview.model.get(field.field);
+													var view = thisview.createListItemView(itemView, field.field, null, $element, {viewData:viewData, modelData: modelData});
+													fieldmodel.push(view.model.toJSON());
+												});
+											}
+										}
+									});
+								}
+								//end render tools
+								
+								var fieldmodel = thisview.model.get(field.field);
+								if($.isArray(value)){
+									for(var idx = 0; idx < fieldmodel.length; idx++){
+										thisview.createListItemView(itemView, field.field, fieldmodel[idx], $element, {viewData:viewData, modelData: modelData});
+									}
+								}
+								
 							}else if(uicontrol !== false){
 								switch(uicontrol) {
 									case "ref":
@@ -1315,7 +1314,7 @@
 			_.extend(this, _.pick(options||{}, viewProps));
 			_super(this, 'constructor', arguments);
 			
-    		this.initModel();
+    		this.initModel(options.modelData);
     		this.initFields();
     		
     		this.$el.empty();
@@ -1361,7 +1360,7 @@
 		getServiceURL: function(){
 			return gonrinApp().serviceURL;
 		},
-		initModel: function(){ return this },
+		initModel: function(modelData){ return this },
 		bindEvents: function(){ return this },
 		getDefaultModel: function(){
 			if(this.modelSchema){
@@ -1628,7 +1627,6 @@
 			
 			// Set value:
 			return options && options.save ? source.save(value, options) : source.set(value, options);
-			return;
 		}
 		
 		// Get the attribute value by default:
@@ -1825,12 +1823,11 @@
 	});
 	
 	Gonrin.CollectionView = Gonrin.View.extend({
-		initModel: function(){
+		initModel: function(modelData){
         	this.collection = new Gonrin.Collection(Gonrin.Model);
         	var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
         	this.collection.url = serviceURL + this.urlPrefix + this.collectionName;
 	    },
-	    //filters: null,
 	    tools: [
       	    {
       	    	name: "default",
@@ -1910,7 +1907,7 @@
 	
 	
 	Gonrin.ModelView = Gonrin.View.extend({
-		initModel: function(){
+		initModel: function(modelData){
 			var self = this;
 			
 			if(!!this.model){
@@ -1918,16 +1915,10 @@
 			}
 			var def = this.getDefaultModel() || {};
 			if(this.modelClass){
-				this.model = new this.modelClass(def,{view: self});
+				this.model = new this.modelClass(def,{modelData: modelData});
 			}
 			else if(this.modelSchema){
-				this.model = new Gonrin.Model(def,{view: self});
-				/*if(def){
-					this.model = new Gonrin.Model(def);
-				}else{
-					this.model = new Gonrin.Model();
-				}*/
-				this.model.view = this;
+				this.model = new Gonrin.Model(def,{modelData: modelData});
 			}
 			if(this.model.urlRoot == null){
 				var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
@@ -1988,6 +1979,52 @@
     			}
     		};
     		return null;
+    	},
+    	createListItemView: function(itemView, fieldname, value, $element, options){
+			var self = this;
+    		var view = new itemView({
+    			parentView: self, 
+    			viewData: (options !== null ? options.viewData : null),
+    			modelData: (options !== null ? options.modelData : null),
+    		});
+    		
+    		if(value !== null){
+    			view.model.set(value);
+    		}
+    		
+			if((!!view.foreignParentField) && (!!view.foreignField)){
+				var refval = self.model.get(view.foreignParentField) || null;
+				if((refval !== null) && (value === null)){
+					view.model.set(view.foreignField, refval);
+				}
+				
+				view.render();
+        		$element.append(view.$el);
+        		
+        		view.on('itemDeleted', function(evtobj){
+        			var fieldmodel = self.model.get(fieldname);
+    				for(var j = 0 ; j < fieldmodel.length; j++)
+	   	           	{
+    					if(_.isEqual(fieldmodel[j], evtobj.data)){
+    						fieldmodel.splice(j, 1);
+	   	           			 break;
+	   	           		 }
+	   	           	}
+    			});
+        		view.on('itemChanged', function(evtobj){
+        			var fieldmodel = self.model.get(fieldname);
+        			
+    				for(var j = 0 ; j < fieldmodel.length; j++)
+	   	           	{
+    					if(_.isEqual(fieldmodel[j], evtobj.oldData)){
+    						fieldmodel[j] = evtobj.data;
+	   	           			 break;
+	   	           		 }
+	   	           	}
+    			});
+        		
+			}
+			return view;
     	},
 		tools : [
     	    {
@@ -2066,6 +2103,7 @@
     	    	]
     	    },
     	],
+    	
 	});
 	
 	Gonrin.ListItemView = Gonrin.ModelView.extend({
