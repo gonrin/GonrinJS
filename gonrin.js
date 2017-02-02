@@ -996,17 +996,21 @@
 							var uicontrol = field.uicontrol || false;
 							var itemView = field.itemView || false;
 							var fieldname = field.field;
+							//field.value = value;
 							
 							if(itemView !== false){
 								
 							}else if(uicontrol !== false){
 								switch(uicontrol) {
 									case "ref":
-								    	field.context = this.view;
-								    	field.selectedItems = field.selectedItems || [];
+								    	field.context = thisview;
+								    	field.selectedItems = [];
+								    	console.log(value);
+								    	console.log(thisview.model.get(field.field));
 								    	if(!!value){
 								    		field.selectedItems.push(value);
 								    	}
+								    	console.log(field.selectedItems);
 								        break;
 								    default:
 								}
@@ -1016,6 +1020,16 @@
 								}else{
 									$element[uicontrol](field);
 									field.$el = $element;
+									if((!!field.foreignRemoteField) && (!!field.foreignField)){
+										$element.on('change.gonrin', function(evt){
+						                	//console.log($('#combobox2').data('gonrin').getValue());
+											if((!!evt.value) && $.isPlainObject(evt.value)){
+												thisview.model.set(field.foreignRemoteField, evt.value[field.foreignField]);
+											}
+						                });
+									}
+									
+									
 								}
 							}
 								
@@ -1116,6 +1130,7 @@
 								switch(uicontrol) {
 									case "ref":
 								    	field.context = this.view;
+								    	field.selectedItems = [];
 								    	if((!!value) && $.isArray(value) && (value.length >0)){
 								    		field.selectedItems = value;
 								    	}
@@ -1314,7 +1329,7 @@
 			_.extend(this, _.pick(options||{}, viewProps));
 			_super(this, 'constructor', arguments);
 			
-    		this.initModel(options.modelData);
+    		this.initModel((options || {}).modelData);
     		this.initFields();
     		
     		this.$el.empty();
@@ -1992,8 +2007,8 @@
     			view.model.set(value);
     		}
     		
-			if((!!view.foreignParentField) && (!!view.foreignField)){
-				var refval = self.model.get(view.foreignParentField) || null;
+			if((!!view.foreignRemoteField) && (!!view.foreignField)){
+				var refval = self.model.get(view.foreignRemoteField) || null;
 				if((refval !== null) && (value === null)){
 					view.model.set(view.foreignField, refval);
 				}
@@ -2381,7 +2396,7 @@
  	    	],
     	
     	//TODO: remove initModel. Tim cach tinh toan ra TextValue de in, Khong phai len server lay lan nua.
-    	initModel: function(){
+    	/*initModel: function(){
 	       	this.collection = new Gonrin.Collection(Gonrin.Model);
 	       	var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
 	      	this.collection.url = serviceURL + this.urlPrefix + this.collectionName;
@@ -2395,7 +2410,7 @@
 				}
 		    	this.model.urlRoot = this.urlPrefix + this.collectionName;
 			}
-		},
+		},*/
     	render:function(){
     		return this;
     	},
