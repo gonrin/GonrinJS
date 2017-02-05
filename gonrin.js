@@ -1005,12 +1005,9 @@
 									case "ref":
 								    	field.context = thisview;
 								    	field.selectedItems = [];
-								    	console.log(value);
-								    	console.log(thisview.model.get(field.field));
 								    	if(!!value){
 								    		field.selectedItems.push(value);
 								    	}
-								    	console.log(field.selectedItems);
 								        break;
 								    default:
 								}
@@ -1104,8 +1101,8 @@
 										//var button = null;
 										var label = thisview.getApp().translate(button.label) || button.name;
 										if((button.type === "button") && thisview._toolIsVisible(button)){
-											var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn").html(label);
-											$tool.addClass(button.buttonClass || "btn-default");
+											var $tool = $("<button/>").attr({"type":"button", "btn-name":button.name}).addClass("btn btn-listitem").html(label);
+											$tool.addClass(button.buttonClass || "btn-default btn-xs");
 											$toolEl.append($tool);
 											if (button.command === "create"){
 												$tool.bind("click", function(){
@@ -1120,7 +1117,8 @@
 								//end render tools
 								
 								var fieldmodel = thisview.model.get(field.field);
-								if($.isArray(value)){
+								
+								if($.isArray(fieldmodel)){
 									for(var idx = 0; idx < fieldmodel.length; idx++){
 										thisview.createListItemView(itemView, field.field, fieldmodel[idx], $element, {viewData:viewData, modelData: modelData});
 									}
@@ -2002,6 +2000,7 @@
     			viewData: (options !== null ? options.viewData : null),
     			modelData: (options !== null ? options.modelData : null),
     		});
+    		
     		
     		if(value !== null){
     			view.model.set(value);
