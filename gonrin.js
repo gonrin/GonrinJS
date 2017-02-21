@@ -1079,6 +1079,7 @@
 							var uicontrol = field.uicontrol || false;
 							var itemView = field.itemView || false;
 							var fieldname = field.field;
+							var events = field.events || false;
 							
 							if(itemView !== false){
 								
@@ -1108,6 +1109,11 @@
 												$tool.bind("click", function(){
 													var fieldmodel = thisview.model.get(field.field);
 													var view = thisview.createListItemView(itemView, field.field, null, $element, {viewData:viewData, modelData: modelData});
+													if(events){
+														$.each(events, function(key,func){
+															view.on(key, $.proxy(func, thisview));
+														})
+													}
 													fieldmodel.push(view.model.toJSON());
 												});
 											}
@@ -1117,10 +1123,14 @@
 								//end render tools
 								
 								var fieldmodel = thisview.model.get(field.field);
-								
 								if($.isArray(fieldmodel)){
 									for(var idx = 0; idx < fieldmodel.length; idx++){
-										thisview.createListItemView(itemView, field.field, fieldmodel[idx], $element, {viewData:viewData, modelData: modelData});
+										var view = thisview.createListItemView(itemView, field.field, fieldmodel[idx], $element, {viewData:viewData, modelData: modelData});
+										if(events){
+											$.each(events, function(key,func){
+												view.on(key, $.proxy(func, thisview));
+											})
+										}
 									}
 								}
 								
@@ -1317,7 +1327,7 @@
 	// Gonrin.View
 	// ----------
 	var viewMap;
-	var viewProps = ['schema', 'modelClass', 'parentView', 'viewModel', 'viewData', 'uiControl', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
+	var viewProps = ['schema', 'modelClass', 'viewModel', 'viewData', 'uiControl', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
 		_super: Backbone.View,
@@ -1996,7 +2006,7 @@
     	createListItemView: function(itemView, fieldname, value, $element, options){
 			var self = this;
     		var view = new itemView({
-    			parentView: self, 
+    			//parentView: self, 
     			viewData: (options !== null ? options.viewData : null),
     			modelData: (options !== null ? options.modelData : null),
     		});
@@ -2011,33 +2021,32 @@
 				if((refval !== null) && (value === null)){
 					view.model.set(view.foreignField, refval);
 				}
-				
-				view.render();
-        		$element.append(view.$el);
-        		
-        		view.on('itemDeleted', function(evtobj){
-        			var fieldmodel = self.model.get(fieldname);
-    				for(var j = 0 ; j < fieldmodel.length; j++)
-	   	           	{
-    					if(_.isEqual(fieldmodel[j], evtobj.data)){
-    						fieldmodel.splice(j, 1);
-	   	           			 break;
-	   	           		 }
-	   	           	}
-    			});
-        		view.on('itemChanged', function(evtobj){
-        			var fieldmodel = self.model.get(fieldname);
-        			
-    				for(var j = 0 ; j < fieldmodel.length; j++)
-	   	           	{
-    					if(_.isEqual(fieldmodel[j], evtobj.oldData)){
-    						fieldmodel[j] = evtobj.data;
-	   	           			 break;
-	   	           		 }
-	   	           	}
-    			});
-        		
 			}
+				
+			view.render();
+    		$element.append(view.$el);
+    		
+    		view.on('itemDeleted', function(evtobj){
+    			var fieldmodel = self.model.get(fieldname);
+				for(var j = 0 ; j < fieldmodel.length; j++)
+   	           	{
+					if(_.isEqual(fieldmodel[j], evtobj.data)){
+						fieldmodel.splice(j, 1);
+   	           			 break;
+   	           		 }
+   	           	}
+			});
+    		view.on('itemChanged', function(evtobj){
+    			var fieldmodel = self.model.get(fieldname);
+    			
+				for(var j = 0 ; j < fieldmodel.length; j++)
+   	           	{
+					if(_.isEqual(fieldmodel[j], evtobj.oldData)){
+						fieldmodel[j] = evtobj.data;
+   	           			 break;
+   	           		 }
+   	           	}
+			});
 			return view;
     	},
 		tools : [
@@ -2121,9 +2130,8 @@
 	});
 	
 	Gonrin.ListItemView = Gonrin.ModelView.extend({
-		parentView: null,
+		//parentView: null,
 		//referenceAttribute:null,
-		
 		bindEvents : function(){
 			//trigger chante
 			var self = this;
