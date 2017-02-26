@@ -2379,7 +2379,6 @@
 	});
 
 	Gonrin.DialogView = Gonrin.CollectionView.extend({
-    	tools : null,
     	$dialog: null,
     	tools : [
  	    	    {
@@ -2402,26 +2401,31 @@
  	    	    },
  	    	],
     	
-    	//TODO: remove initModel. Tim cach tinh toan ra TextValue de in, Khong phai len server lay lan nua.
-    	/*initModel: function(){
-	       	this.collection = new Gonrin.Collection(Gonrin.Model);
-	       	var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
-	      	this.collection.url = serviceURL + this.urlPrefix + this.collectionName;
-	        	
-			if(this.modelSchema){
-				var def = this.getDefaultModel();
-				if(def){
-					this.model = new Gonrin.Model(def);
-				}else{
-					this.model = new Gonrin.Model();
-				}
-		    	this.model.urlRoot = this.urlPrefix + this.collectionName;
-			}
-		},*/
     	render:function(){
     		return this;
     	},
     	
+    	close: function(){
+    		var self = this;
+    		if (!!self.$dialog){
+    			self.$dialog.modal("hide");
+    		}
+    	},
+    	dialog: function(options){
+    		var self = this;
+    		this.initToolbar();
+    		this.applyBindings();
+    		self.$dialog = gonrin.dialog.dialog({message:self.$el});
+    		return this;
+    	}
+    });
+	Gonrin.DialogCollectionView = Gonrin.DialogView.extend({});
+	Gonrin.DialogModelView = Gonrin.ModelView.extend({
+    	$dialog: null,
+    	tools : [],
+    	render:function(){
+    		return this;
+    	},
     	close: function(){
     		var self = this;
     		if (!!self.$dialog){
