@@ -2378,7 +2378,28 @@
 		return this;
 	});
 
-	Gonrin.DialogView = Gonrin.CollectionView.extend({
+	
+	Gonrin.DialogView = Gonrin.View.extend({
+    	$dialog: null,
+    	tools : [],
+    	render:function(){
+    		return this;
+    	},
+    	close: function(){
+    		var self = this;
+    		if (!!self.$dialog){
+    			self.$dialog.modal("hide");
+    		}
+    	},
+    	dialog: function(options){
+    		var self = this;
+    		this.initToolbar();
+    		this.applyBindings();
+    		self.$dialog = gonrin.dialog.dialog({message:self.$el});
+    		return this;
+    	}
+    });
+	Gonrin.CollectionDialogView = Gonrin.CollectionView.extend({
     	$dialog: null,
     	tools : [
  	    	    {
@@ -2419,8 +2440,8 @@
     		return this;
     	}
     });
-	Gonrin.DialogCollectionView = Gonrin.DialogView.extend({});
-	Gonrin.DialogModelView = Gonrin.ModelView.extend({
+	
+	Gonrin.ModelDialogView = Gonrin.ModelView.extend({
     	$dialog: null,
     	tools : [],
     	render:function(){
