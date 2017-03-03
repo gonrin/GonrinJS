@@ -999,6 +999,23 @@
 							//field.value = value;
 							
 							if(itemView !== false){
+								var events = field.events || false;
+								var viewData = null;
+								var modelData = null;
+								if(field.hasOwnProperty("viewData")){
+									viewData =  isFunction(field["viewData"]) ? field["viewData"].call(thisview): field["viewData"];
+								}
+								if(field.hasOwnProperty("modelData")){
+									modelData =  isFunction(field["modelData"]) ? field["modelData"].call(thisview): field["modelData"];
+								}
+								
+								var fieldmodel = thisview.model.get(field.field);
+								var view = thisview.createItemView(itemView, field.field, fieldmodel, $element, {viewData:viewData, modelData: modelData});
+								if(events){
+									$.each(events, function(key,func){
+										view.on(key, $.proxy(func, thisview));
+									})
+								}
 								
 							}else if(uicontrol !== false){
 								switch(uicontrol) {
@@ -1079,10 +1096,9 @@
 							var uicontrol = field.uicontrol || false;
 							var itemView = field.itemView || false;
 							var fieldname = field.field;
-							var events = field.events || false;
 							
 							if(itemView !== false){
-								
+								var events = field.events || false;
 								var viewData = null;
 								var modelData = null;
 								if(field.hasOwnProperty("viewData")){
@@ -1108,7 +1124,7 @@
 											if (button.command === "create"){
 												$tool.bind("click", function(){
 													var fieldmodel = thisview.model.get(field.field);
-													var view = thisview.createListItemView(itemView, field.field, null, $element, {viewData:viewData, modelData: modelData});
+													var view = thisview.createItemView(itemView, field.field, null, $element, {viewData:viewData, modelData: modelData});
 													if(events){
 														$.each(events, function(key,func){
 															view.on(key, $.proxy(func, thisview));
@@ -1125,7 +1141,7 @@
 								var fieldmodel = thisview.model.get(field.field);
 								if($.isArray(fieldmodel)){
 									for(var idx = 0; idx < fieldmodel.length; idx++){
-										var view = thisview.createListItemView(itemView, field.field, fieldmodel[idx], $element, {viewData:viewData, modelData: modelData});
+										var view = thisview.createItemView(itemView, field.field, fieldmodel[idx], $element, {viewData:viewData, modelData: modelData});
 										if(events){
 											$.each(events, function(key,func){
 												view.on(key, $.proxy(func, thisview));
@@ -2003,7 +2019,7 @@
     		};
     		return null;
     	},
-    	createListItemView: function(itemView, fieldname, value, $element, options){
+    	createItemView: function(itemView, fieldname, value, $element, options){
 			var self = this;
     		var view = new itemView({
     			//parentView: self, 
@@ -2026,26 +2042,38 @@
 			view.render();
     		$element.append(view.$el);
     		
+    		
     		view.on('itemDeleted', function(evtobj){
     			var fieldmodel = self.model.get(fieldname);
-				for(var j = 0 ; j < fieldmodel.length; j++)
-   	           	{
-					if(_.isEqual(fieldmodel[j], evtobj.data)){
-						fieldmodel.splice(j, 1);
-   	           			 break;
-   	           		 }
-   	           	}
+    			
+    			if($.isArray(fieldmodel)){
+    				for(var j = 0 ; j < fieldmodel.length; j++)
+       	           	{
+    					if(_.isEqual(fieldmodel[j], evtobj.data)){
+    						fieldmodel.splice(j, 1);
+       	           			 break;
+       	           		 }
+       	           	}
+    			}else{
+    				self.model.set(fieldname, null);
+    			}
+				
 			});
     		view.on('itemChanged', function(evtobj){
     			var fieldmodel = self.model.get(fieldname);
-    			
-				for(var j = 0 ; j < fieldmodel.length; j++)
-   	           	{
-					if(_.isEqual(fieldmodel[j], evtobj.oldData)){
-						fieldmodel[j] = evtobj.data;
-   	           			 break;
-   	           		 }
-   	           	}
+    			if($.isArray(fieldmodel)){
+    				for(var j = 0 ; j < fieldmodel.length; j++)
+       	           	{
+    					if(_.isEqual(fieldmodel[j], evtobj.oldData)){
+    						fieldmodel[j] = evtobj.data;
+       	           			 break;
+       	           		 }
+       	           	}
+    			}else{
+    				//dict ItemView
+    				self.model.set(fieldname, evtobj.data);
+    			}
+				
 			});
 			return view;
     	},
@@ -2129,7 +2157,7 @@
     	
 	});
 	
-	Gonrin.ListItemView = Gonrin.ModelView.extend({
+	Gonrin.ItemView = Gonrin.ModelView.extend({
 		//parentView: null,
 		//referenceAttribute:null,
 		bindEvents : function(){
