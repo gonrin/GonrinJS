@@ -2239,7 +2239,7 @@
 		this.session = {token:null, expired:null};
 		this.permission = null;
 		this.currentUser = null;
-		this.serviceURL = this.serviceURL || null;
+		this.serviceURL = this.serviceURL || "";
 		this._data = {};
 		this.registerApp();
 	};
