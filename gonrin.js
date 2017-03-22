@@ -1038,7 +1038,7 @@
 										$element.on('change.gonrin', function(evt){
 						                	//console.log($('#combobox2').data('gonrin').getValue());
 											if((!!evt.value) && $.isPlainObject(evt.value)){
-												thisview.model.set(field.foreignRemoteField, evt.value[field.foreignField]);
+												thisview.model.set(field.foreignField, evt.value[field.foreignRemoteField]);
 											}
 						                });
 									}
