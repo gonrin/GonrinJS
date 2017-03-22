@@ -1039,6 +1039,8 @@
 						                	//console.log($('#combobox2').data('gonrin').getValue());
 											if((!!evt.value) && $.isPlainObject(evt.value)){
 												thisview.model.set(field.foreignField, evt.value[field.foreignRemoteField]);
+											}else{
+												thisview.model.set(field.foreignField, null);
 											}
 						                });
 									}
@@ -2408,6 +2410,7 @@
 
 	
 	Gonrin.DialogView = Gonrin.View.extend({
+		uiControl: {},
     	$dialog: null,
     	tools : [],
     	render:function(){
@@ -2419,7 +2422,7 @@
     			self.$dialog.modal("hide");
     		}
     	},
-    	dialog: function(options){
+    	dialog: function(){
     		var self = this;
     		this.initToolbar();
     		this.applyBindings();
@@ -2460,7 +2463,7 @@
     			self.$dialog.modal("hide");
     		}
     	},
-    	dialog: function(options){
+    	dialog: function(){
     		var self = this;
     		this.initToolbar();
     		this.applyBindings();
@@ -2481,7 +2484,7 @@
     			self.$dialog.modal("hide");
     		}
     	},
-    	dialog: function(options){
+    	dialog: function(){
     		var self = this;
     		this.initToolbar();
     		this.applyBindings();
