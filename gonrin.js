@@ -1424,7 +1424,7 @@
 			this.tools = this.tools || tools || [];
 			if(!this.toolbar){
 				this.toolbar = $('<div/>').addClass("toolbar");
-				this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar).after(self.progressbar);
+				this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar);
 			}else{
 				this.toolbar.empty();
 			}
@@ -1882,9 +1882,6 @@
   		    	    	label: "TRANSLATE:CREATE",
   		    	    	command: function(){
   		    	    		var self = this;
-  		    	    		if(self.progressbar){
-  		    	    			self.progressbar.hide();
-  		    	    		}
   		    	    		var path = self.collectionName + '/model';
   		    	    		self.getApp().getRouter().navigate(path);
   		    	    	}
@@ -2092,9 +2089,6 @@
 						label: "TRANSLATE:BACK",
 						command: function(){
 							var self = this;
-							if(self.progressbar){
-  		    	    			self.progressbar.hide();
-  		    	    		}
 							//Backbone.history.history.back();
 			                self.getApp().getRouter().navigate(self.collectionName + "/collection");
 						}
@@ -2106,23 +2100,14 @@
 		    	    	label: "TRANSLATE:SAVE",
 		    	    	command: function(){
 		    	    		var self = this;
-		    	    		if(self.progressbar){
-  		    	    			self.progressbar.show();
-  		    	    		}
 		                    self.model.save(null,{
 		                        success: function (model, respose, options) {
-		                        	if(self.progressbar){
-		  		    	    			self.progressbar.hide();
-		  		    	    		}
 		                            self.getApp().notify("Save successfully");
 		                            self.getApp().getRouter().navigate(self.collectionName + "/collection");
 		                        },
 		                        error: function (model, xhr, options) {
 		                            //self.alertMessage("Something went wrong while processing the model", false);
 		                            self.getApp().notify('Save error');
-		                            if(self.progressbar){
-		  		    	    			self.progressbar.hide();
-		  		    	    		}
 		                        }
 		                    });
 		    	    	}
@@ -2137,18 +2122,13 @@
 		    	    	},
 		    	    	command: function(){
 		    	    		var self = this;
-		    	    		self.progressbar.show();
 		                    self.model.destroy({
 		                        success: function(model, response) {
-		                        	if(self.progressbar){
-		  		    	    			self.progressbar.hide();
-		  		    	    		}
 		                            self.getApp().getRouter().navigate(self.collectionName + "/collection");
 		                        },
 		                        error: function (model, xhr, options) {
 		                            //self.alertMessage("Something went wrong while processing the model", false);
 		                            self.getApp().notify('Delete error');
-		                            self.progressbar.hide();
 		                        }
 		                    });
 		    	    	}
