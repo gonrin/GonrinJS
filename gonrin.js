@@ -2472,5 +2472,53 @@
     		return this;
     	}
     });
+	
+	Gonrin.FilterView = Gonrin.ModelView.extend({
+    	sesionKey : null,
+    	getDataFromSession: function(){
+    		var self = this;
+    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
+    			for (var key in self.model.attributes) {
+        	        if (hasOwnProperty.call(self.model.attributes, key)){
+        	        	self.model.set(key,self.getApp().data(self.sesionKey + key) || null);
+        	        }
+        	    }
+    		}
+    		return this;
+    	},
+    	saveDataToSession: function(){
+    		var self = this;
+    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
+    			for (var key in self.model.attributes) {
+        	        if (hasOwnProperty.call(self.model.attributes, key)){
+        	        	self.getApp().data(self.sesionKey + key,self.model.get(key));
+        	        }
+        	    }
+    		}
+    		return this;
+    	},
+    	isEmptyFilter: function(){
+    		var self = this;
+    		console.log("isEmptyFilter");
+    		for (var key in self.model.attributes) {
+    	        if (hasOwnProperty.call(self.model.attributes, key)){
+    	        	if (self.model.get(key) !== null){
+    	        		return false;
+    	        	}
+    	        }
+    	    }
+    		return true;
+    	},
+    	triggerFilter: function(){
+    		var self = this;
+    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
+    			self.saveDataToSession();
+    		};
+			self.trigger('filterChanged', {
+				data: self.model.toJSON()
+			});
+    	}
+    });
+	
 	return Gonrin;
 }));
