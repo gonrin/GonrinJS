@@ -2405,7 +2405,8 @@
     	dialog: function(){
     		var self = this;
     		this.initToolbar();
-    		this.applyBindings();
+    		//this.applyBindings();
+    		this.render();
     		self.$dialog = gonrin.dialog.dialog({message:self.$el});
     		return this;
     	}
@@ -2446,7 +2447,8 @@
     	dialog: function(){
     		var self = this;
     		this.initToolbar();
-    		this.applyBindings();
+    		//this.applyBindings();
+    		this.render();
     		self.$dialog = gonrin.dialog.dialog({message:self.$el});
     		return this;
     	}
@@ -2467,7 +2469,8 @@
     	dialog: function(){
     		var self = this;
     		this.initToolbar();
-    		this.applyBindings();
+    		//this.applyBindings();
+    		self.render();
     		self.$dialog = gonrin.dialog.dialog({message:self.$el});
     		return this;
     	}
@@ -2499,7 +2502,6 @@
     	},
     	isEmptyFilter: function(){
     		var self = this;
-    		console.log("isEmptyFilter");
     		for (var key in self.model.attributes) {
     	        if (hasOwnProperty.call(self.model.attributes, key)){
     	        	if (self.model.get(key) !== null){
