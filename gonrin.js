@@ -1466,12 +1466,12 @@
 				this.initToolbar(tools);
 			}
 		},
-		loader: function(options){
+		loader: function(opts){
 			var self = this;
 			var waitTpl = "<div style='position: absolute;top: 50%;left:48%'><span class='glyphicon glyphicon-hourglass' style='font-size: 200%;'></span></div>";
 			var reloadTpl = "<a style='position: absolute;top: 50%;left:48%' href='javascript:void(0);' onclick='javascript:gonrinApp().getRouter().refresh()'><span class='glyphicon glyphicon-refresh' style='font-size: 200%;'></span></a>";
 		    
-			if((typeof options != 'undefined') || $.isPlainObject(options)){
+			if((typeof options != 'undefined') || $.isPlainObject(opts)){
 				var loader = self.$el.find("#" + self.cid + "_loader");
 				if(loader.length == 0){
 	    			loader = $("<div>").attr("id", self.cid + "_loader").addClass('view-loader').css({
@@ -1485,21 +1485,21 @@
 	        		});
 	    		}
 				var message = "";
-				if($.isPlainObject(options)){
-					if(options.message === "LOADER_WAIT"){
+				if($.isPlainObject(opts)){
+					if(opts.message === "LOADER_WAIT"){
 						message = waitTpl;
 					}
-					else if(options.message === "LOADER_RELOAD"){
+					else if(opts.message === "LOADER_RELOAD"){
 						message = reloadTpl;
 					}
 					else{
-						message = options.message || waitTpl;
+						message = opts.message || waitTpl;
 					}
 				}
 				loader.html(message);
 	    		self.$el.append(loader);
 			}
-			if(options === false){
+			if(opts === false){
 	    		self.$el.find("#" + self.cid + "_loader").remove();
 			}
 		},
