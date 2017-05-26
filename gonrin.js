@@ -2442,12 +2442,14 @@
     			self.$dialog.modal("hide");
     		}
     	},
-    	dialog: function(){
+    	dialog: function(options){
     		var self = this;
     		this.initToolbar();
     		//this.applyBindings();
     		this.render();
-    		self.$dialog = gonrin.dialog.dialog({message:self.$el});
+    		//self.$dialog = gonrin.dialog.dialog({message:self.$el});
+    		var opts = $.extend({}, {message:self.$el}, (options|| {}));
+    		self.$dialog = gonrin.dialog.dialog(opts);
     		return this;
     	}
     });
@@ -2484,12 +2486,14 @@
     			self.$dialog.modal("hide");
     		}
     	},
-    	dialog: function(){
+    	dialog: function(options){
     		var self = this;
     		this.initToolbar();
     		//this.applyBindings();
     		this.render();
-    		self.$dialog = gonrin.dialog.dialog({message:self.$el});
+    		//self.$dialog = gonrin.dialog.dialog({message:self.$el});
+    		var opts = $.extend({}, {message:self.$el}, (options|| {}));
+    		self.$dialog = gonrin.dialog.dialog(opts);
     		return this;
     	}
     });
@@ -2506,12 +2510,13 @@
     			self.$dialog.modal("hide");
     		}
     	},
-    	dialog: function(){
+    	dialog: function(options){
     		var self = this;
     		this.initToolbar();
     		//this.applyBindings();
     		self.render();
-    		self.$dialog = gonrin.dialog.dialog({message:self.$el});
+    		var opts = $.extend({}, {message:self.$el}, (options|| {}));
+    		self.$dialog = gonrin.dialog.dialog(opts);
     		return this;
     	}
     });
