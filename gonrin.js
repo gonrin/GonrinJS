@@ -2252,7 +2252,8 @@
 	var Application = Gonrin.Application = function(attributes){
 		var self = this;
 		this.cid = _.uniqueId('app');
-		_.extend(this, _.pick(attributes||{}, appProps));
+		//_.extend(this, _.pick(attributes||{}, appProps));
+		_.extend(this, attributes||{});
 		this.initialize.apply(this, arguments);
 		this.router = this.router || new Router();
 		this.session = {token:null, expired:null};
