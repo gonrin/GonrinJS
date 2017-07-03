@@ -2248,7 +2248,7 @@
 	// Gonrin.Application
 	// ----------
 	var appMap;
-	var appProps = ['serviceURL', 'router', 'lang', 'layout', 'block', 'postLogin'];
+	var appProps = ['serviceURL', 'router', 'lang', 'layout', 'block', 'postLogin', 'initialize'];
 	var Application = Gonrin.Application = function(attributes){
 		var self = this;
 		this.cid = _.uniqueId('app');
