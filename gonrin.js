@@ -2177,8 +2177,6 @@
 	});
 	
 	Gonrin.ItemView = Gonrin.ModelView.extend({
-		//parentView: null,
-		//referenceAttribute:null,
 		bindEvents : function(){
 			//trigger chante
 			var self = this;
@@ -2192,20 +2190,20 @@
 			});
 			return this;
 		},
-    	remove: function(){
+		remove: function(){
     		var self = this;
     		self.trigger('itemDeleted', {
 				itemId: self.model.get(self.model.idAttribute),
 				data: self.model.toJSON()
 			});
-    		//self.model.destroy();
+    		self.model.destroy();
 			// COMPLETELY UNBIND THE VIEW
     		
 			self.undelegateEvents();
 			self.$el.removeData().unbind();
 		    // Remove view from DOM
-			//self.remove();  
 			self.$el.remove();
+			_super(self, 'remove', arguments);
 		    Backbone.View.prototype.remove.call(self);
     	}
     });
