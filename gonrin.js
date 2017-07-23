@@ -2204,7 +2204,7 @@
 			self.undelegateEvents();
 			self.$el.removeData().unbind();
 		    // Remove view from DOM
-			self.remove();  
+			//self.remove();  
 			self.$el.remove();
 		    Backbone.View.prototype.remove.call(self);
     	}
