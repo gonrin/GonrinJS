@@ -1880,13 +1880,13 @@
 	});
 
 	var collectionMap;
-	var collectionProps = ['page, num_rows', 'filters'];
+	var collectionProps = ['page, numRows', 'filters'];
 
 	Gonrin.Collection = Backbone.Collection.extend({
 		_super: Backbone.Collection,
 		page:null,
-		total_pages: null,
-		num_rows:null,
+		totalPages: null,
+		numRows:null,
 		filters: null,
 		constructor: function(attributes, options) {
 			_.extend(this, _.pick(options||{}, collectionProps));
@@ -2211,7 +2211,7 @@
 	
 	//Gonrin.User: 
 	var userMap;
-	var userProps = ['id', 'name', 'email', 'first_name', 'last_name', 'active', 'roles', 'gender', 'birthday', 'phone', 'info'];
+	var userProps = ['id', 'name', 'email', 'first_name', 'last_name', 'fullname', 'active', 'roles', 'gender', 'birthday', 'phone', 'info'];
 	var User = Gonrin.User = function(attributes){
 		var self = this;
 		this.cid = _.uniqueId('user');
