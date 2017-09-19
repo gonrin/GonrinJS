@@ -1116,6 +1116,7 @@
 								var $toolEl = thisview.$el.find(toolEl);
 								
 								if((!!$toolEl) && ($.isArray(tools))){
+									$toolEl.empty();
 									$.each(tools, function(iter, button){
 										//var button = null;
 										var label = thisview.getApp().translate(button.label) || button.name;
@@ -1124,7 +1125,7 @@
 											$tool.addClass(button.buttonClass || "btn-default btn-xs");
 											$toolEl.append($tool);
 											if (button.command === "create"){
-												$tool.bind("click", function(){
+												$tool.unbind("click").bind("click", function(){
 													var fieldmodel = thisview.model.get(field.field);
 													var view = thisview.createItemView(itemView, field.field, null, $element, {viewData:viewData, modelData: modelData});
 													if(events){
