@@ -1361,7 +1361,13 @@
     		
     		this.$el.empty();
 			if(this.template){
-				this.$el.html(this.template);
+				if(!!gonrin && !!gonrin.template){
+					var tpl = gonrin.template(this.template)({});
+					this.$el.html(tpl);
+				}else{
+					this.$el.html(this.template);
+				}
+				
 				//this.applyBindings();
 			}
     		this.initToolbar();
