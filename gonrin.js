@@ -2253,7 +2253,6 @@
 		this.cid = _.uniqueId('app');
 		//_.extend(this, _.pick(attributes||{}, appProps));
 		_.extend(this, attributes||{});
-		this.initialize.apply(this, arguments);
 		this.router = this.router || new Router();
 		this.session = {token:null, expired:null};
 		this.permission = null;
@@ -2261,6 +2260,7 @@
 		this.serviceURL = this.serviceURL || "";
 		this._data = {};
 		this.registerApp();
+		this.initialize.apply(this, arguments);
 	};
 	// Set up inheritance for the app
 	Application.extend = extend;
@@ -2306,13 +2306,13 @@
 			}
 		},
 		translate: function(str){
-			if( (!!str) && (str.startsWith('TRANSLATE:'))){
-				var labelArr = str.split("TRANSLATE:");
-				if(labelArr.length > 1){
-					return this.lang[labelArr[1]] || str;
+			if(!!str){
+				if(str.startsWith('TRANSLATE:')){
+					str = str.slice(10);
 				}
+				return this.lang[str] || str;
 			}
-			return str;
+			return "";
 		},
 		postLogin: function(){ return this },
 		
