@@ -1367,8 +1367,6 @@
 				}else{
 					this.$el.html(this.template);
 				}
-				
-				//this.applyBindings();
 			}
     		this.initToolbar();
     		this.bindEvents();
@@ -2216,14 +2214,14 @@
     });
 	
 	
-	//Gonrin.User: 
-	var userMap;
-	var userProps = ['id', 'name', 'email', 'first_name', 'last_name', 'fullname', 'active', 'roles', 'gender', 'birthday', 'phone', 'info'];
+	//Gonrin.User:
 	var User = Gonrin.User = function(attributes){
 		var self = this;
 		this.cid = _.uniqueId('user');
-		_.extend(this, _.pick(attributes||{}, userProps));
-		this._data = {};
+		_.extend(this, attributes||{});
+		//this._data = {};
+		this.roles = this.roles || [];
+		this.permision = this.permision || {};
 		
 	}
 	User.extend = extend;
@@ -2247,6 +2245,15 @@
 			}
 			return false;
 		},
+		can: function(permission, subject){
+			if((this.permission !== null) && this.permission.hasOwnProperty(subject)){
+				return this.permission[subject][permission] || false;
+			}
+			return false;
+		},
+		cannot : function(permission, subject){
+			return !this.can(permission, subject)
+		}
 		
 	});
 	
