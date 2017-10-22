@@ -1361,12 +1361,7 @@
     		
     		this.$el.empty();
 			if(this.template){
-				if(!!gonrin && !!gonrin.template){
-					var tpl = gonrin.template(this.template)({});
-					this.$el.html(tpl);
-				}else{
-					this.$el.html(this.template);
-				}
+				this.$el.html(this.template);
 			}
     		this.initToolbar();
     		this.bindEvents();
@@ -1931,7 +1926,7 @@
   					
       	    	]
       	    },
-      	],
+      	 ],
       	initFields: function(){
     		var self = this;
         	var schema = _.result(this, "modelSchema") || {};
@@ -1945,7 +1940,6 @@
         		var field = {field: key};
         		var viewfieldlst = $.grep(self.uiControl.fields, function(f){ return f.field === key; });
         		if( !(viewfieldlst && (viewfieldlst.length == 1))){
-        			field["visible"] = false;
         			self.uiControl.fields.push(field);
         		}
         		//fields_from_schema.push(field);

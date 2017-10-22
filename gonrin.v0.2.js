@@ -1931,7 +1931,7 @@
   					
       	    	]
       	    },
-      	 ],
+      	],
       	initFields: function(){
     		var self = this;
         	var schema = _.result(this, "modelSchema") || {};
@@ -1945,6 +1945,7 @@
         		var field = {field: key};
         		var viewfieldlst = $.grep(self.uiControl.fields, function(f){ return f.field === key; });
         		if( !(viewfieldlst && (viewfieldlst.length == 1))){
+        			field["visible"] = false;
         			self.uiControl.fields.push(field);
         		}
         		//fields_from_schema.push(field);
