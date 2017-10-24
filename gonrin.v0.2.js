@@ -911,7 +911,7 @@
 					var bind_attr = context['$bind_attribute'];
 				
 					if(bind_attr && (typeof bind_attr === "string")){
-						var fields = _.result(this.view,'uiControl') || [],
+						var fields = _.result(this.view.uiControl,'fields') || [],
 							model_schema = _.result(this.view,'modelSchema') || {},
 							field = null;
 						
@@ -983,7 +983,7 @@
 					var bind_attr = context['$bind_attribute'];
 					var thisview = this.view;
 					if(bind_attr && (typeof bind_attr === "string")){
-						var fields = _.result(this.view,'uiControl') || [],
+						var fields = _.result(this.view.uiControl,'fields') || [],
 						model_schema = _.result(this.view,'modelSchema') || {},
 						field = null;
 					
@@ -1084,7 +1084,7 @@
 					var thisview = this.view;
 					
 					if(bind_attr && (typeof bind_attr === "string")){
-						var fields = _.result(this.view,'uiControl') || [],
+						var fields = _.result(this.view.uiControl,'fields') || [],
 							model_schema = _.result(this.view,'modelSchema') || {},
 							field = null;
 						
@@ -2011,9 +2011,49 @@
     		var self = this;
         	var schema = _.result(this, "modelSchema") || {};
         	
-        	this.uiControl = this.uiControl || [];
+        	//this.uiControl = this.uiControl || [];
+        	
+        	this.uiControl = this.uiControl || {};
+        	this.uiControl.$el = this.uiControl.$el || null;
+        	this.uiControl.fields = this.uiControl.fields || [];
         	
         	var fields_from_schema = [];
+        	_.each(schema, function(obj, key) {
+        		var field = {field: key};
+        		var viewfieldlst = $.grep(self.uiControl.fields, function(f){ return f.field === key; });
+        		if( !(viewfieldlst && (viewfieldlst.length == 1))){
+        			self.uiControl.fields.push(field);
+        		}
+        	});
+        	
+        	var key = this.uiControl.fields.length;
+        	while (key--) {
+        		var field = this.uiControl.fields[key];
+        	    if((!isObject(field))|| (field.field === null) || ((field.field === undefined))){
+					self.fields.splice(key, 1);
+					continue;
+				}
+				var schema_field = schema[field.field];
+				
+				if(schema_field){
+					if(!field.required){
+						field.required = schema_field.required ? schema_field.required: false;
+					};
+					if(!field.label){
+						field.label = schema_field.label ? schema_field.label: field.field;
+					};
+					field.type = schema_field.type;
+					field.$el = field.$el || null;
+				}else{
+					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
+						self.uiControl.splice(key, 1);
+					}
+				}
+        	}
+        	
+        	//edit me
+        	
+        	/*var fields_from_schema = [];
         	_.each(schema, function(obj, key) {
         		var field = {field: key};
         		var viewfieldlst = $.grep(self.uiControl, function(f){ return f.field === key; });
@@ -2047,14 +2087,14 @@
 						self.uiControl.splice(key, 1);
 					}
 				}
-        	}
+        	}*/
         	
     		return this;
     	},
     	getFieldElement: function(name){
     		var self = this;
-    		for (var i = 0; i < self.uiControl.length; i++){
-    			var field = self.uiControl[i];
+    		for (var i = 0; i < self.uiControl.fields.length; i++){
+    			var field = self.uiControl.fields[i];
     			if (field.field === name){
     				return field.$el || null;
     			}
