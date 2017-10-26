@@ -1363,7 +1363,7 @@
 			if(this.template){
 				this.$el.html(this.template);
 			}
-    		this.initToolbar();
+    		this.initToolbar(this.tools);
     		this.bindEvents();
 		},
 		// Bindings list accessor:
@@ -1419,17 +1419,17 @@
             return !tool.hasOwnProperty(visible) || (tool.hasOwnProperty(visible) && (isFunction(tool[visible]) ? tool[visible].call(self) : (tool[visible] === true)) );
 		},
     	initToolbar: function(tools){
-    		
 			var self = this;
-			this.tools = this.tools || tools || [];
+			
 			if(!this.toolbar){
 				this.toolbar = $('<div/>').addClass("toolbar");
 				this.$el.find("[" + self.bindingBlocks + "=toolbar]").append(self.toolbar);
 			}else{
 				this.toolbar.empty();
 			}
+			tools = tools || [];
 			
-			_.each(this.tools, function(tool, index) {
+			_.each(tools, function(tool, index) {
 				if((tool.type === "group") && self._toolIsVisible(tool)){
 					var $group = $("<div/>").addClass("btn-group").appendTo(self.toolbar);
 					if(tool.groupClass){
@@ -1465,6 +1465,9 @@
 			if(!!tools){
 				this.initToolbar(tools);
 			}
+		},
+		renderToolbar: function(tools){
+			this.initToolbar(tools);
 		},
 		loader: function(opts){
 			var self = this;
