@@ -2276,7 +2276,7 @@
 			if((this.roles != null) && (this.roles.length > 0)){
 				for(var i = 0; i < this.roles.length; i ++){
 					if (typeof role === "string") {
-						if (role === this.roles[i].name){
+						if (role === this.roles[i].role_name){
 							return true;
 						}
 					}
