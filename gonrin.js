@@ -2455,7 +2455,7 @@
     	},
     	dialog: function(options){
     		var self = this;
-    		this.initToolbar();
+    		this.initToolbar(this.tools);
     		//this.applyBindings();
     		this.render();
     		//self.$dialog = gonrin.dialog.dialog({message:self.$el});
@@ -2499,7 +2499,7 @@
     	},
     	dialog: function(options){
     		var self = this;
-    		this.initToolbar();
+    		this.initToolbar(this.tools);
     		//this.applyBindings();
     		this.render();
     		//self.$dialog = gonrin.dialog.dialog({message:self.$el});
@@ -2523,7 +2523,7 @@
     	},
     	dialog: function(options){
     		var self = this;
-    		this.initToolbar();
+    		this.initToolbar(this.tools);
     		//this.applyBindings();
     		self.render();
     		var opts = $.extend({}, {message:self.$el}, (options|| {}));
