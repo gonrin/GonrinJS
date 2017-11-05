@@ -2096,7 +2096,7 @@
     			}else{
     				self.model.set(fieldname, null);
     			}
-				
+    			self.model.trigger("change:" + fieldname);
 			});
     		view.on('itemChanged', function(evtobj){
     			var fieldmodel = self.model.get(fieldname);
@@ -2112,7 +2112,7 @@
     				//dict ItemView
     				self.model.set(fieldname, evtobj.data);
     			}
-				
+    			self.model.trigger("change:" + fieldname);
 			});
 			return view;
     	},

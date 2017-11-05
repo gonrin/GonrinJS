@@ -2143,6 +2143,7 @@
     			}else{
     				self.model.set(fieldname, null);
     			}
+    			self.model.trigger("change:" + fieldname);
 				
 			});
     		view.on('itemChanged', function(evtobj){
@@ -2159,7 +2160,7 @@
     				//dict ItemView
     				self.model.set(fieldname, evtobj.data);
     			}
-				
+    			self.model.trigger("change:" + fieldname);
 			});
 			return view;
     	},
