@@ -907,9 +907,9 @@
 			// Value: read-write. Gets and sets the value of a form element.
 			value: makeHandler({
 				post_init: function($element, value, context, bindings) {
-	
-					var bind_attr = context['$bind_attribute'];
-				
+					
+					var bind_attr = this.bind_attr = context['$bind_attribute'];
+					
 					if(bind_attr && (typeof bind_attr === "string")){
 						var fields = _.result(this.view.uiControl,'fields') || [],
 							model_schema = _.result(this.view,'modelSchema') || {},
@@ -975,12 +975,18 @@
 						// unfortuantely, jQuery doesn't gracefully handle this error for us.
 						// remove this try/catch block when IE6 is officially deprecated.
 					}
+				},
+				clean: function() {
+					if( (!!this.$el.data('gonrin'))&& !!(this.$el.data('gonrin').destroy)){
+						return this.$el.data('gonrin').destroy();
+					}
+					//destroy
 				}
 			}),
 			dict: makeHandler({
 				post_init: function($element, value, context, bindings) {
 					var self = this;
-					var bind_attr = context['$bind_attribute'];
+					var bind_attr = this.bind_attr = context['$bind_attribute'];
 					var thisview = this.view;
 					if(bind_attr && (typeof bind_attr === "string")){
 						var fields = _.result(this.view.uiControl,'fields') || [],
@@ -1075,12 +1081,18 @@
 						// remove this try/catch block when IE6 is officially deprecated.
 					}
 					return null;
+				},
+				clean: function() {
+					//this.view.trigger("removeBinding");
+					if( (!!this.$el.data('gonrin'))&& !!(this.$el.data('gonrin').destroy)){
+						return this.$el.data('gonrin').destroy();
+					}
 				}
 			}),
 			list: makeHandler({
 				post_init: function($element, value, context, bindings) {
 					var self = this;
-					var bind_attr = context['$bind_attribute'];
+					var bind_attr = this.bind_attr = context['$bind_attribute'];
 					var thisview = this.view;
 					
 					if(bind_attr && (typeof bind_attr === "string")){
@@ -1133,6 +1145,9 @@
 															view.on(key, $.proxy(func, thisview));
 														})
 													}
+													thisview.on("removeBinding", function(){
+														view.remove();
+													});
 													fieldmodel.push(view.model.toJSON());
 												});
 											}
@@ -1196,6 +1211,12 @@
 						return $.parseJSON( $element.val() );
 					} catch (error) {}
 					return null;
+				},
+				clean: function() {
+					this.view.trigger("removeBinding");
+					if( (!!this.$el.data('gonrin'))&& !!(this.$el.data('gonrin').destroy)){
+						return this.$el.data('gonrin').destroy();
+					}
 				}
 			})
 	};
@@ -1336,9 +1357,6 @@
 				if ((defaults[key] === null) && (_.result(props, 'type') === "list")){
 					defaults[key] = [];
 				}
-				/*if ((defaults[key] === null) && (_.result(props, 'type') === "dict")){
-					defaults[key] = {};
-				}*/
 			}
     	});
     	return defaults;
@@ -1514,7 +1532,6 @@
 		},
 		
 		render: function(){ return this },
-    	
 		// Compiles a model context, then applies bindings to the view:
 		// All Model->View relationships will be baked at the time of applying bindings;
 		// changes in configuration to source attributes or view bindings will require a complete re-bind.
@@ -1992,6 +2009,54 @@
 	
 	
 	Gonrin.ModelView = Gonrin.View.extend({
+		removeBinding: function(fieldname) {
+			var self = this;
+			if(this._b){
+				for(var i = 0; i < this._b.length; i++){
+					if ((!!this._b[i].bind_attr) && (this._b[i].bind_attr === fieldname)){
+						this._b[i].dispose();
+						this._b.splice(i,1);
+						return;
+					}
+				}
+			}
+		},
+		applyBinding: function(fieldname) {
+			var self = this;
+			var sources = _.clone(_.result(self, 'bindingSources'));
+			var context = self._c;
+			
+			if(!context){
+				throw 'This view must run applyBindings first';
+			}
+			
+			self.removeBinding(fieldname);
+			
+			var declarations = self.bindings; //data-bind
+
+			var options = self.setterOptions;
+			
+			var handlers = _.clone(bindingHandlers);
+			var filters = _.clone(bindingFilters);
+			
+			// Compile a complete set of binding handlers for the view:
+			// mixes all custom handlers into a copy of default handlers.
+			// Custom handlers defined as plain functions are registered as read-only setters.
+			_.each(_.result(self, 'bindingHandlers')||{}, function(handler, name) {
+				handlers[ name ] = makeHandler(handler);
+			});
+
+			// Compile a complete set of binding filters for the view:
+			// mixes all custom filters into a copy of default filters.
+			_.each(_.result(self, 'bindingFilters')||{}, function(filter, name) {
+				filters[ name ] = makeFilter(filter);
+			});
+
+			queryViewForSelector(self, '['+declarations+'*="' + fieldname + '"]').each(function() {
+				var $element = Backbone.$(this);
+				bindElementToView(self, $element, $element.attr(declarations), context, handlers, filters);
+			});
+		},
 		initModel: function(modelData){
 			var self = this;
 			
@@ -2014,8 +2079,6 @@
 		initFields: function(){
     		var self = this;
         	var schema = _.result(this, "modelSchema") || {};
-        	
-        	//this.uiControl = this.uiControl || [];
         	
         	this.uiControl = this.uiControl || {};
         	this.uiControl.$el = this.uiControl.$el || null;
@@ -2057,42 +2120,6 @@
         	
         	//edit me
         	
-        	/*var fields_from_schema = [];
-        	_.each(schema, function(obj, key) {
-        		var field = {field: key};
-        		var viewfieldlst = $.grep(self.uiControl, function(f){ return f.field === key; });
-        		if( !(viewfieldlst && (viewfieldlst.length == 1))){
-        			self.uiControl.push(field);
-        		}
-        		
-        		//fields_from_schema.push(field);
-        	});
-        	
-        	var key = this.uiControl.length;
-        	while (key--) {
-        		var field = this.uiControl[key];
-        	    if((!isObject(field))|| (field.field === null) || ((field.field === undefined))){
-					self.fields.splice(key, 1);
-					continue;
-				}
-				var schema_field = schema[field.field];
-				
-				if(schema_field){
-					if(!field.required){
-						field.required = schema_field.required ? schema_field.required: false;
-					};
-					if(!field.label){
-						field.label = schema_field.label ? schema_field.label: field.field;
-					};
-					field.type = schema_field.type;
-					field.$el = field.$el || null;
-				}else{
-					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
-						self.uiControl.splice(key, 1);
-					}
-				}
-        	}*/
-        	
     		return this;
     	},
     	getFieldElement: function(name){
@@ -2107,6 +2134,7 @@
     	},
     	createItemView: function(itemView, fieldname, value, $element, options){
 			var self = this;
+			options = options || null;
     		var view = new itemView({
     			//parentView: self, 
     			viewData: (options !== null ? options.viewData : null),
@@ -2241,13 +2269,16 @@
 			});
 			return this;
 		},
-		remove: function(){
+		remove: function(destroy){
     		var self = this;
     		self.trigger('itemDeleted', {
 				itemId: self.model.get(self.model.idAttribute),
 				data: self.model.toJSON()
 			});
-    		self.model.destroy();
+    		if(destroy === true){
+    			self.model.destroy();
+    		}
+    		
 			// COMPLETELY UNBIND THE VIEW
     		
 			self.undelegateEvents();

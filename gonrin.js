@@ -2193,13 +2193,15 @@
 			});
 			return this;
 		},
-		remove: function(){
+		remove: function(destroy){
     		var self = this;
     		self.trigger('itemDeleted', {
 				itemId: self.model.get(self.model.idAttribute),
 				data: self.model.toJSON()
 			});
-    		self.model.destroy();
+    		if(destroy === true){
+    			self.model.destroy();
+    		}
 			// COMPLETELY UNBIND THE VIEW
     		
 			self.undelegateEvents();
