@@ -2152,11 +2152,7 @@
 					view.model.set(view.foreignField, refval);
 				}
 			}
-				
-			view.render();
-    		$element.append(view.$el);
-    		
-    		
+			
     		view.on('itemDeleted', function(evtobj){
     			var fieldmodel = self.model.get(fieldname);
     			
@@ -2190,6 +2186,8 @@
     			}
     			self.model.trigger("change:" + fieldname);
 			});
+    		view.render();
+    		$element.append(view.$el);
 			return view;
     	},
 		tools : [
