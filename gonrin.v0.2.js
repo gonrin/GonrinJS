@@ -967,14 +967,19 @@
 					return $element.val();
 				},
 				set: function($element, value) {
-					try {
-						if ($element.val() + '' != value + '') $element.val(value);
-					} catch (error) {
-						// Error setting value: IGNORE.
-						// This occurs in IE6 while attempting to set an undefined multi-select option.
-						// unfortuantely, jQuery doesn't gracefully handle this error for us.
-						// remove this try/catch block when IE6 is officially deprecated.
+					if( (!!$element.data('gonrin'))&& !!($element.data('gonrin').setValue)){
+						$element.data('gonrin').setValue(value);
+					}else{
+						try {
+							if ($element.val() + '' != value + '') $element.val(value);
+						} catch (error) {
+							// Error setting value: IGNORE.
+							// This occurs in IE6 while attempting to set an undefined multi-select option.
+							// unfortuantely, jQuery doesn't gracefully handle this error for us.
+							// remove this try/catch block when IE6 is officially deprecated.
+						}
 					}
+					
 				},
 				clean: function() {
 					if( (!!this.$el.data('gonrin'))&& !!(this.$el.data('gonrin').destroy)){
