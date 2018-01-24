@@ -1027,6 +1027,11 @@
 										view.on(key, $.proxy(func, thisview));
 									})
 								}
+								thisview.on("removeBinding", function(attr){
+									if((!attr)  || (attr === bind_attr)){
+										view.removeBind();
+									}
+								});
 								
 							}else if(uicontrol !== false){
 								switch(uicontrol) {
@@ -1088,7 +1093,7 @@
 					return null;
 				},
 				clean: function() {
-					//this.view.trigger("removeBinding");
+					this.view.trigger("removeBinding", this.bind_attr);
 					if( (!!this.$el.data('gonrin'))&& !!(this.$el.data('gonrin').destroy)){
 						return this.$el.data('gonrin').destroy();
 					}
@@ -1150,8 +1155,10 @@
 															view.on(key, $.proxy(func, thisview));
 														})
 													}
-													thisview.on("removeBinding", function(){
-														view.remove();
+													thisview.on("removeBinding", function(attr){
+														if((!attr)  || (attr === bind_attr)){
+															view.removeBind();
+														}
 													});
 													fieldmodel.push(view.model.toJSON());
 												});
@@ -1170,6 +1177,14 @@
 												view.on(key, $.proxy(func, thisview));
 											})
 										}
+										//thisview.on("removeBinding", function(attr){
+										//	view.removeBind();
+										//});
+										thisview.on("removeBinding", function(attr){
+											if((!attr)  || (attr === bind_attr)){
+												view.removeBind();
+											}
+										});
 									}
 								}
 								
@@ -1218,7 +1233,8 @@
 					return null;
 				},
 				clean: function() {
-					this.view.trigger("removeBinding");
+					//Fix remove binding but save model
+					this.view.trigger("removeBinding", this.bind_attr);
 					if( (!!this.$el.data('gonrin'))&& !!(this.$el.data('gonrin').destroy)){
 						return this.$el.data('gonrin').destroy();
 					}
@@ -2272,13 +2288,14 @@
 			});
 			return this;
 		},
-		remove: function(destroy){
+		remove: function(saveModel){
     		var self = this;
-    		self.trigger('itemDeleted', {
-				itemId: self.model.get(self.model.idAttribute),
-				data: self.model.toJSON()
-			});
-    		if(destroy === true){
+    		
+    		if(saveModel !== true){
+    			self.trigger('itemDeleted', {
+    				itemId: self.model.get(self.model.idAttribute),
+    				data: self.model.toJSON()
+    			});
     			self.model.destroy();
     		}
     		
@@ -2290,6 +2307,10 @@
 			self.$el.remove();
 			_super(self, 'remove', arguments);
 		    Backbone.View.prototype.remove.call(self);
+    	},
+    	removeBind: function(){
+    		var self = this;
+    		self.remove(true);
     	}
     });
 	
