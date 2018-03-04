@@ -1533,6 +1533,8 @@
 	        		});
 	    		}
 				var message = "";
+				var parent = self.$el;
+				
 				if($.isPlainObject(opts)){
 					if(opts.message === "LOADER_WAIT"){
 						message = waitTpl;
@@ -1543,9 +1545,16 @@
 					else{
 						message = opts.message || waitTpl;
 					}
+					
+					if(opts.el){
+						parent = self.$el.find(opts.el);
+					}
 				}
 				loader.html(message);
-	    		self.$el.append(loader);
+				if(!!parent){
+					parent.append(loader);
+				}
+				
 			}
 			if(opts === false){
 	    		self.$el.find("#" + self.cid + "_loader").remove();
