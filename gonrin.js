@@ -945,7 +945,7 @@
 							    //type list 
 							    	
 							    default:
-							        
+							        uicontrol = field.uicontrol || null;
 							}
 							if(uicontrol !== null){
 								if ($.fn[uicontrol] === undefined) {
