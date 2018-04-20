@@ -2444,7 +2444,7 @@
 		},
 		notify:function(args){
 			if($.notify){
-				$.notify(args);
+				$.notify.apply(null, arguments);
 			}
 		},
 		dialog:function(){
