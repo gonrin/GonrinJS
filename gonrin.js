@@ -2034,7 +2034,22 @@
 	    },
 	    setSelectedItems:function(items){
 	    	this.uiControl.selectedItems = items;
-	    }
+	    },
+	    getPageFromSession: function(){
+    		var self = this;
+    		var page = null;
+    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
+    			page = self.getApp().data(self.sesionKey + '_page') || null;
+    		}
+    		return page;
+    	},
+    	savePageToSession: function(page){
+    		var self = this;
+    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
+    			self.getApp().data(self.sesionKey + '_page', page);
+    		}
+    		return this;
+    	},
 	});
 	
 	
