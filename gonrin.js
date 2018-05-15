@@ -2406,14 +2406,6 @@
 	_.extend(Gonrin.Application.prototype, Backbone.Events, {
 		initialize: blankMethod,
 		//session
-		check_valid_session: function(){
-			if(this.session){
-				if(this.session.token != null){
-					return true;
-				}
-			}
-			return false;
-		},
 		registerApp: function(){
 			var self = this;
 			window._gonrinApp = this;
@@ -2442,6 +2434,9 @@
 			if ( (typeof key === "string") && (value !== undefined )) {
 				self._data[key] = value;
 			}
+		},
+		clearData: function(){
+			this._data = {};
 		},
 		translate: function(str){
 			if(!!str){
