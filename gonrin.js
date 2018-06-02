@@ -2312,10 +2312,10 @@
 			});
 			return this;
 		},
-		remove: function(saveModel){
+		remove: function(destroyModel){
     		var self = this;
     		
-    		if(saveModel !== true){
+    		if(destroyModel === true){
     			self.trigger('itemDeleted', {
     				itemId: self.model.get(self.model.idAttribute),
     				data: self.model.toJSON()
