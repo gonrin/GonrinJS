@@ -2038,15 +2038,15 @@
 	    getPageFromSession: function(){
     		var self = this;
     		var page = null;
-    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
-    			page = self.getApp().data(self.sesionKey + '_page') || null;
+    		if((self.sessionKey !== null) && (self.sessionKey.length > 0)){
+    			page = self.getApp().data(self.sessionKey + '_page') || null;
     		}
     		return page;
     	},
     	savePageToSession: function(page){
     		var self = this;
-    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
-    			self.getApp().data(self.sesionKey + '_page', page);
+    		if((self.sessionKey !== null) && (self.sessionKey.length > 0)){
+    			self.getApp().data(self.sessionKey + '_page', page);
     		}
     		return this;
     	},
@@ -2655,13 +2655,13 @@
     });
 	
 	Gonrin.FilterView = Gonrin.ModelView.extend({
-    	sesionKey : null,
+    	sessionKey : null,
     	getDataFromSession: function(){
     		var self = this;
-    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
+    		if((self.sessionKey !== null) && (self.sessionKey.length > 0)){
     			for (var key in self.model.attributes) {
         	        if (hasOwnProperty.call(self.model.attributes, key)){
-        	        	self.model.set(key,self.getApp().data(self.sesionKey + key) || null);
+        	        	self.model.set(key,self.getApp().data(self.sessionKey + key) || null);
         	        }
         	    }
     		}
@@ -2669,10 +2669,10 @@
     	},
     	saveDataToSession: function(){
     		var self = this;
-    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
+    		if((self.sessionKey !== null) && (self.sessionKey.length > 0)){
     			for (var key in self.model.attributes) {
         	        if (hasOwnProperty.call(self.model.attributes, key)){
-        	        	self.getApp().data(self.sesionKey + key,self.model.get(key));
+        	        	self.getApp().data(self.sessionKey + key,self.model.get(key));
         	        }
         	    }
     		}
@@ -2691,7 +2691,7 @@
     	},
     	triggerFilter: function(){
     		var self = this;
-    		if((self.sesionKey !== null) && (self.sesionKey.length > 0)){
+    		if((self.sessionKey !== null) && (self.sessionKey.length > 0)){
     			self.saveDataToSession();
     		};
 			self.trigger('filterChanged', {
