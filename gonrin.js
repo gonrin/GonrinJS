@@ -2054,6 +2054,7 @@
 	
 	
 	Gonrin.ModelView = Gonrin.View.extend({
+		modelIdAttribute: null,
 		removeBinding: function(fieldname) {
 			var self = this;
 			if(this._b){
@@ -2114,11 +2115,16 @@
 			}
 			else if(this.modelSchema){
 				this.model = new Gonrin.Model(def,{modelData: modelData});
+				if(this.modelIdAttribute !== null){
+					this.model.idAttribute = this.modelIdAttribute;
+				}
 			}
 			if(this.model.urlRoot == null){
 				var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
 				this.model.urlRoot = serviceURL + this.urlPrefix + this.collectionName;
 			}
+			
+			
 			return this;
 		},
 		initFields: function(){
