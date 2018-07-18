@@ -1999,6 +1999,12 @@
         			field["visible"] = false;
         			self.uiControl.fields.push(field);
         		}
+        		if (!!obj.primary){
+        			if (!self.uiControl.primaryField){
+        				self.uiControl.primaryField = key;
+            		}
+        		}
+        		
         		//fields_from_schema.push(field);
         	});
         	
@@ -2115,16 +2121,11 @@
 			}
 			else if(this.modelSchema){
 				this.model = new Gonrin.Model(def,{modelData: modelData});
-				if(this.modelIdAttribute !== null){
-					this.model.idAttribute = this.modelIdAttribute;
-				}
 			}
 			if(this.model.urlRoot == null){
 				var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
 				this.model.urlRoot = serviceURL + this.urlPrefix + this.collectionName;
 			}
-			
-			
 			return this;
 		},
 		initFields: function(){
@@ -2141,6 +2142,12 @@
         		var viewfieldlst = $.grep(self.uiControl.fields, function(f){ return f.field === key; });
         		if( !(viewfieldlst && (viewfieldlst.length == 1))){
         			self.uiControl.fields.push(field);
+        		}
+        		
+        		if (!!obj.primary){
+        			if (!self.model.idAttribute){
+        				self.model.idAttribute = key;
+            		}
         		}
         	});
         	
