@@ -2143,9 +2143,8 @@
         		if( !(viewfieldlst && (viewfieldlst.length == 1))){
         			self.uiControl.fields.push(field);
         		}
-        		
         		if (!!obj.primary){
-        			if (!self.model.idAttribute){
+        			if ((!self.model.idAttribute || self.model.idAttribute == "id") && (key !== "id")){
         				self.model.idAttribute = key;
             		}
         		}
