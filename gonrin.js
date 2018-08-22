@@ -1385,7 +1385,7 @@
 	// Gonrin.View
 	// ----------
 	var viewMap;
-	var viewProps = ['schema', 'modelClass', 'viewModel', 'viewData', 'uiControl', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
+	var viewProps = ['schema', 'modelClass', 'viewModel', 'viewData', 'uiControl', 'sessionKey', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
 		_super: Backbone.View,
