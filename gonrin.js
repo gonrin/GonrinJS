@@ -1192,7 +1192,7 @@
 								switch(uicontrol) {
 									case "ref":
 								    	field.context = this.view;
-								    	field.selectedItems = [];
+								    	field.selectedItems = field.selectedItems || [];
 								    	if((!!value) && $.isArray(value) && (value.length >0)){
 								    		field.selectedItems = value;
 								    	}
@@ -1219,6 +1219,9 @@
 					
 				},
 				set: function($element, value) {
+					if( (!!$element.data('gonrin'))&& !!($element.data('gonrin').setValue)){
+						return $element.data('gonrin').setValue(value);
+					}
 					try {
 						if ($element.val() + '' != value + '') $element.val(JSON.stringify(value));
 					} catch (error) {}
