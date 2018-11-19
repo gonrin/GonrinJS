@@ -1448,6 +1448,9 @@
 		getServiceURL: function(){
 			return gonrinApp().serviceURL;
 		},
+		isInDOM: function(){
+			return this.$el.closest('body').size() > 0;
+		},
 		initModel: function(modelData){ return this },
 		bindEvents: function(){ return this },
 		getDefaultModel: function(){
