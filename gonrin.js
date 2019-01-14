@@ -2234,19 +2234,37 @@
 				
 			});
     		view.on('itemChanged', function(evtobj){
-    			var fieldmodel = self.model.get(fieldname);
-    			if($.isArray(fieldmodel)){
-    				for(var j = 0 ; j < fieldmodel.length; j++)
-       	           	{
-    					if(_.isEqual(fieldmodel[j], evtobj.oldData)){
-    						fieldmodel[j] = evtobj.data;
-       	           			 break;
-       	           		 }
-       	           	}
-    			}else{
-    				//dict ItemView
-    				self.model.set(fieldname, evtobj.data);
-    			}
+
+				var idAttribute = view.model.idAttribute;
+				var fieldmodel = self.model.get(fieldname);
+
+				if(!!idAttribute){
+					if($.isArray(fieldmodel)){
+						for(var j = 0 ; j < fieldmodel.length; j++)
+						{
+							if(fieldmodel[j][idAttribute], evtobj.oldData[idAttribute]){
+								fieldmodel[j] = evtobj.data;
+								break;
+							}
+						}
+					}else{
+						//dict ItemView
+						self.model.set(fieldname, evtobj.data);
+					}
+				}else{
+					if($.isArray(fieldmodel)){
+						for(var j = 0 ; j < fieldmodel.length; j++)
+						{
+							if(_.isEqual(fieldmodel[j], evtobj.oldData)){
+								fieldmodel[j] = evtobj.data;
+								break;
+							}
+						}
+					}else{
+						//dict ItemView
+						self.model.set(fieldname, evtobj.data);
+					}
+				}
     			self.model.trigger("change:" + fieldname);
 			});
     		view.render();
