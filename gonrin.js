@@ -2160,7 +2160,7 @@
         	while (key--) {
         		var field = this.uiControl.fields[key];
         	    if((!isObject(field))|| (field.field === null) || ((field.field === undefined))){
-					self.fields.splice(key, 1);
+					self.uiControl.fields.splice(key, 1);
 					continue;
 				}
 				var schema_field = schema[field.field];
