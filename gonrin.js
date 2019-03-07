@@ -1069,14 +1069,13 @@
 					}
 				},
 				set: function($element, value) {
+					if( (!!$element.data('gonrin'))&& !!($element.data('gonrin').setValue)){
+						return $element.data('gonrin').setValue(value);
+					}
 					try {
 						if ($element.val() + '' != value + '') $element.val(JSON.stringify(value));
-					} catch (error) {
-						// Error setting value: IGNORE.
-						// This occurs in IE6 while attempting to set an undefined multi-select option.
-						// unfortuantely, jQuery doesn't gracefully handle this error for us.
-						// remove this try/catch block when IE6 is officially deprecated.
-					}
+					} catch (error) {}
+						
 				},
 				get: function($element) {
 					if( (!!$element.data('gonrin'))&& !!($element.data('gonrin').getValue)){
