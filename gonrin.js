@@ -2216,19 +2216,38 @@
 			}
 			
     		view.on('itemDeleted', function(evtobj){
+    			var idAttribute = view.model.idAttribute;
     			var fieldmodel = self.model.get(fieldname);
     			
-    			if($.isArray(fieldmodel)){
-    				for(var j = 0 ; j < fieldmodel.length; j++)
-       	           	{
-    					if(_.isEqual(fieldmodel[j], evtobj.data)){
-    						fieldmodel.splice(j, 1);
-       	           			 break;
-       	           		 }
-       	           	}
-    			}else{
-    				self.model.set(fieldname, null);
-    			}
+    			
+    			if(!!idAttribute){
+					if($.isArray(fieldmodel)){
+						for(var j = 0 ; j < fieldmodel.length; j++)
+						{
+							if(fieldmodel[j][idAttribute] == evtobj.oldData[idAttribute]){
+								fieldmodel.splice(j, 1);
+								break;
+							}
+						}
+					}else{
+						//dict ItemView
+						self.model.set(fieldname, null);
+					}
+				}else{
+					if($.isArray(fieldmodel)){
+						for(var j = 0 ; j < fieldmodel.length; j++)
+						{
+							if(_.isEqual(fieldmodel[j], evtobj.data)){
+								 fieldmodel.splice(j, 1);
+								 break;
+							 }
+						}
+					}else{
+						self.model.set(fieldname, null);
+					}
+				}
+    			
+    			
     			self.model.trigger("change:" + fieldname);
 				
 			});
