@@ -2224,7 +2224,7 @@
 					if($.isArray(fieldmodel)){
 						for(var j = 0 ; j < fieldmodel.length; j++)
 						{
-							if(fieldmodel[j][idAttribute] == evtobj.oldData[idAttribute]){
+							if(fieldmodel[j][idAttribute] == evtobj.data[idAttribute]){
 								fieldmodel.splice(j, 1);
 								break;
 							}
