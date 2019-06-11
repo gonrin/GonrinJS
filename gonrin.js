@@ -1160,6 +1160,7 @@
 														}
 													});
 													fieldmodel.push(view.model.toJSON());
+													thisview.model.trigger("change:"+ field.field);
 												});
 											}
 										}
@@ -2031,6 +2032,7 @@
 					};
 					field.type = schema_field.type;
 					field.$el = field.$el || null;
+					field.bootstrap_version = self.getApp().bootstrap_version || 4;
 				}else{
 					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
 						self.uiControl.fields.splice(key, 1);
@@ -2173,6 +2175,7 @@
 					};
 					field.type = schema_field.type;
 					field.$el = field.$el || null;
+					field.bootstrap_version = self.getApp().bootstrap_version || 4;
 				}else{
 					if((field.field !== "command") && ((!!field.command)|| (!!field.menu))){
 						self.uiControl.splice(key, 1);
