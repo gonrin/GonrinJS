@@ -2636,10 +2636,11 @@
     		var self = this;
     		this.initToolbar(this.tools);
     		//this.applyBindings();
-    		this.render();
+    		
     		//self.$dialog = gonrin.dialog.dialog({message:self.$el});
     		var opts = $.extend({}, {message:self.$el}, (options|| {}));
     		self.$dialog = gonrin.dialog.dialog(opts);
+    		self.render();
     		return this;
     	}
     });
