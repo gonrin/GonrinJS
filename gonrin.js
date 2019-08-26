@@ -990,7 +990,7 @@
 				}
 			}),
 			dict: makeHandler({
-				init: function($element, value, context, bindings) {
+				post_init: function($element, value, context, bindings) {
 					var self = this;
 					var bind_attr = this.bind_attr = context['$bind_attribute'];
 					var thisview = this.view;
@@ -1100,7 +1100,7 @@
 				}
 			}),
 			list: makeHandler({
-				init: function($element, value, context, bindings) {
+				post_init: function($element, value, context, bindings) {
 					var self = this;
 					var bind_attr = this.bind_attr = context['$bind_attribute'];
 					var thisview = this.view;
