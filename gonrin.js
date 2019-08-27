@@ -961,7 +961,6 @@
 					};
 				},
 				get: function($element) {
-					console.log("get value abc");
 					if( (!!$element.data('gonrin'))&& !!($element.data('gonrin').getValue)){
 						return $element.data('gonrin').getValue();
 					}
@@ -1907,7 +1906,6 @@
 		// => Value accessor is a function.
 		if (changable && handler.get && isFunction(accessor)) {
 			self.$el.on(events, function(evt) {
-				console.log("context", context, "get");
 				accessor(self.get(self.$el, readAccessor(accessor), evt));
 			});
 		}
