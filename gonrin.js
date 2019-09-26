@@ -906,7 +906,7 @@
 
 			// Value: read-write. Gets and sets the value of a form element.
 			value: makeHandler({
-				init: function($element, value, context, bindings) {
+				post_init: function($element, value, context, bindings) {
 					
 					var bind_attr = this.bind_attr = context['$bind_attribute'];
 					
