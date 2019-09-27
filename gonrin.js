@@ -906,7 +906,7 @@
 
 			// Value: read-write. Gets and sets the value of a form element.
 			value: makeHandler({
-				post_init: function($element, value, context, bindings) {
+				init: function($element, value, context, bindings) {
 					
 					var bind_attr = this.bind_attr = context['$bind_attribute'];
 					
@@ -922,7 +922,6 @@
 						});
 						if((field !== null) && (field.uicontrol !== false)){
 							var uicontrol = null;
-							
 							field.value = value;
 							
 							switch(field.type) {
@@ -1052,8 +1051,7 @@
 									field.$el = $element;
 									if((!!field.foreignRemoteField) && (!!field.foreignField)){
 										$element.on('change.gonrin', function(evt){
-						                	//console.log($('#combobox2').data('gonrin').getValue());
-											if((!!evt.value) && $.isPlainObject(evt.value)){
+						                	if((!!evt.value) && $.isPlainObject(evt.value)){
 												thisview.model.set(field.foreignField, evt.value[field.foreignRemoteField]);
 											}else{
 												thisview.model.set(field.foreignField, null);
