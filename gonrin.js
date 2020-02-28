@@ -1980,7 +1980,22 @@
 	    },
 	    setSelectedItems:function(items){
 	    	this.uiControl.selectedItems = items;
-	    }
+		},
+		getPageFromSession: function(){
+    		var self = this;
+    		var page = null;
+    		if((self.sessionKey !== null) && (self.sessionKey.length > 0)){
+    			page = self.getApp().data(self.sessionKey + '_page') || null;
+    		}
+    		return page;
+    	},
+    	savePageToSession: function(page){
+    		var self = this;
+    		if((self.sessionKey !== null) && (self.sessionKey.length > 0)){
+    			self.getApp().data(self.sessionKey + '_page', page);
+    		}
+    		return this;
+    	},
 	});
 	
 	
@@ -2077,7 +2092,7 @@
 					view.model.set(view.foreignField, refval);
 				}
 			}
-				
+			console.log("createItemView", value);
 			view.render();
     		$element.append(view.$el);
     		
