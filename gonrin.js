@@ -909,6 +909,7 @@
 				init: function($element, value, context, bindings) {
 					
 					var bind_attr = this.bind_attr = context['$bind_attribute'];
+					var thisview = this.view;
 					
 					if(bind_attr && (typeof bind_attr === "string")){
 						var fields = _.result(this.view.uiControl,'fields') || [],
@@ -950,6 +951,7 @@
 								if ($.fn[uicontrol] === undefined) {
 						        	console.log("$ is not support " + uicontrol);
 								}else{
+									field.context = thisview;
 									$element[uicontrol](field);
 									field.$el = $element;
 								}
