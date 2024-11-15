@@ -1163,6 +1163,10 @@
 													thisview.model.trigger("change:"+ field.field);
 												});
 											}
+                                            else if($.isFunction(button.command)){
+                                                $tool.unbind("click").bind("click", $.proxy(button.command, thisview));
+            
+                                            }
 										}
 									});
 								}
