@@ -1392,7 +1392,7 @@
 	// Gonrin.View
 	// ----------
 	var viewMap;
-	var viewProps = ['schema', 'modelClass', 'viewModel', 'viewData', 'uiControl', 'sessionKey', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
+	var viewProps = ['serviceURL', 'schema', 'modelClass', 'viewModel', 'viewData', 'uiControl', 'sessionKey', 'bindings', 'bindingFilters', 'bindingHandlers', 'bindingSources', 'computeds'];
 	
 	Gonrin.View = Backbone.View.extend({
 		_super: Backbone.View,
@@ -1450,7 +1450,11 @@
 			return gonrinApp();
 		},
 		getServiceURL: function(){
-			return gonrinApp().serviceURL;
+            var serviceURL = this.serviceURL;
+            if(!serviceURL){
+                serviceURL = gonrinApp().serviceURL !== null? gonrinApp().serviceURL :"" ;
+            }
+			return serviceURL;
 		},
 		isInDOM: function(){
 			return this.$el.closest('body').size() > 0;
@@ -1969,7 +1973,12 @@
 	Gonrin.CollectionView = Gonrin.View.extend({
 		initModel: function(modelData){
         	this.collection = new Gonrin.Collection(Gonrin.Model);
-        	var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
+        	var serviceURL = this.serviceURL;
+            if(!serviceURL){
+                serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
+            }
+            
+            
         	this.collection.url = serviceURL + this.urlPrefix + this.collectionName;
 	    },
 	    tools: [
@@ -2134,7 +2143,10 @@
 				this.model = new Gonrin.Model(def,{modelData: modelData});
 			}
 			if(this.model.urlRoot == null){
-				var serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
+                var serviceURL = this.serviceURL;
+                if(!serviceURL){
+                    serviceURL = this.getApp().serviceURL !== null? this.getApp().serviceURL :"" ;
+                }
 				this.model.urlRoot = serviceURL + this.urlPrefix + this.collectionName;
 			}
 			return this;
